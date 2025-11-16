@@ -1,0 +1,9 @@
+AvailableNodes:
+  - pupload/ffmpeg
+
+Nodes:
+  - ID: 0
+    DefName: pupload/ffmpeg
+    
+
+      
