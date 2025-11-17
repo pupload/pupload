@@ -1,33 +1,32 @@
-- ID: 0
-  Publisher: pupload 
-  Name: ffmpeg
-  Image: linuxserver/ffmpeg
-  Inputs:
-    - Name: VideoStream 
-      Description: ""
-      Required: true
-      Type:
-        - video
-        - photo
-        - audio
+ID: 0
+Publisher: pupload 
+Name: ffmpeg
+Image: linuxserver/ffmpeg
+Inputs:
+  - Name: VideoStream 
+    Description: ""
+    Required: true
+    Type:
+      - video
+      - photo
+      - audio
 
-  Outputs:
-    - Name: VideoStream
-      Description: ""
-      Required: true
-      Type: 
-        - video
-        - photo
-        - audio
+Outputs:
+  - Name: VideoStream
+    Description: ""
+    Required: true
+    Type: 
+      - video
+      - photo
+      - audio
 
-  Flags:
-    - Name: Flag
-      Description: ""
-      Required: true
-      Type: string
+Flags:
+  - Name: Flag
+    Description: ""
+    Required: true
+    Type: string
 
-  Commands:
-    - Name: Encode
-      Description: ""
-      Exec: ffmpeg -f ${flags}
- 
+Commands:
+  - Name: Encode
+    Description: ""
+    Exec: ffmpeg -f ${flags}

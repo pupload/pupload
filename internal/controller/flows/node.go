@@ -1,38 +1,42 @@
 package flows
 
-type NodeDef struct {
-	ID        int64
-	Publisher string
-	Name      string
-	Inputs    []NodeEdgeDef
-	Outputs   []NodeEdgeDef
-	Flags     []NodeFlagDef
+import (
+	"encoding/json"
+	"fmt"
+	"pupload/internal/models"
+
+	"github.com/hibiken/asynq"
+)
+
+func (f *FlowService) ExecuteNode(n *models.Node) error {
+	defName := n.DefName
+	fmt.Println(f.NodeDefs)
+
+	nodeDef, exists := f.NodeDefs[defName]
+
+	if !exists {
+		return fmt.Errorf("Node Defintion %s does not exist.", defName)
+	}
+
+	task, err := NewNodeExecuteTask(nodeDef, *n)
+
+	if err != nil {
+		return err
+	}
+	f.AsynqClient.Enqueue(task)
+
+	return nil
 }
 
-type NodeFlagDef struct {
-	Name        string
-	Description string
-	Required    bool
-	Type        string
-}
+func NewNodeExecuteTask(nodeDef models.NodeDef, node models.Node) (*asynq.Task, error) {
+	payload, err := json.Marshal(models.NodeExecutePayload{
+		NodeDef: nodeDef,
+		Node:    node,
+	})
 
-type NodeEdgeDef struct {
-	Name        string
-	Description string
-	Required    bool
-	Type        string
-}
+	if err != nil {
+		return nil, err
+	}
 
-type Node struct {
-	ID      int
-	DefName string
-	Inputs  []NodeEdge
-	Outputs []NodeEdge
-}
-
-type NodeEdge struct {
-	ID       int
-	Name     string
-	Required bool
-	Value    interface{}
+	return asynq.NewTask(models.TypeNodeExecute, payload), nil
 }

@@ -13,6 +13,10 @@ type CONTROLLER_CONFIG struct {
 	Storage struct {
 		DataPath string
 	}
+
+	Redis struct {
+		Address string
+	}
 }
 
 //go:embed defaults/controller.toml
