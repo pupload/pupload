@@ -118,7 +118,7 @@ func (f *FlowService) StartFlow(name string) (string, error) {
 
 	entryNode := flow.Nodes[0]
 
-	id, err := f.createFlowRun(name)
+	flowRun, err := f.CreateFlowRun(name)
 
 	if err != nil {
 		return "", err
@@ -130,7 +130,7 @@ func (f *FlowService) StartFlow(name string) (string, error) {
 		return "", err
 	}
 
-	return id, nil
+	return flowRun.ID, nil
 }
 
 func writeDefaultFlows(flowPath string) {

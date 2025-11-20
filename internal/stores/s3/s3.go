@@ -75,3 +75,7 @@ func (s *S3Store) PutFromStream(ctx context.Context, objectName string, data io.
 func (s *S3Store) PutPresignedURL(ctx context.Context, objectName string, expires time.Duration) (u *url.URL, err error) {
 	return s.client.PresignedPutObject(ctx, s.bucket, objectName, expires)
 }
+
+func (s *S3Store) GetPresignedURL(ctx context.Context, objectName string, expires time.Duration) (u *url.URL, err error) {
+	return s.client.PresignedGetObject(ctx, s.bucket, objectName, expires, url.Values{})
+}

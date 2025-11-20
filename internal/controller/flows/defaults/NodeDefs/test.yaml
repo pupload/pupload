@@ -12,7 +12,7 @@ Inputs:
       - audio
 
 Outputs:
-  - Name: VideoStream
+  - Name: VideoOut
     Description: ""
     Required: true
     Type: 
@@ -24,9 +24,11 @@ Flags:
   - Name: Flag
     Description: ""
     Required: true
-    Type: string
+    Type: false
 
-Commands:
-  - Name: Encode
-    Description: ""
-    Exec: ffmpeg -f ${flags}
+Command:
+  Name: Encode
+  Description: ""
+  Exec: 
+       - ffmpeg 
+       - -f ${VideoStream}

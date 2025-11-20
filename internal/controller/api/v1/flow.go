@@ -34,6 +34,17 @@ func handleFlowRoutes(f flows.FlowService) http.Handler {
 		render.JSON(w, r, map[string]string{"task_id": taskID})
 	})
 
+	r.Get("/status/{flowRunID}", func(w http.ResponseWriter, r *http.Request) {
+		flowRunID := chi.URLParam(r, "flowRunID")
+		flowRunStatus, err := f.GetFlowRun(flowRunID)
+		if err != nil {
+			http.Error(w, "Flow run does not exist.", http.StatusBadRequest)
+		}
+
+		render.JSON(w, r, flowRunStatus)
+
+	})
+
 	return r
 
 }

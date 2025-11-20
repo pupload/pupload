@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	server.CreateWorkerServer()
+	server.NewWorkerServer()
 }

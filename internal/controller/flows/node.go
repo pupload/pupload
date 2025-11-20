@@ -10,7 +10,7 @@ import (
 
 func (f *FlowService) ExecuteNode(n *models.Node) error {
 	defName := n.DefName
-	fmt.Println(f.NodeDefs)
+	fmt.Println(n)
 
 	nodeDef, exists := f.NodeDefs[defName]
 

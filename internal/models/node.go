@@ -4,9 +4,11 @@ type NodeDef struct {
 	ID        int64
 	Publisher string
 	Name      string
+	Image     string
 	Inputs    []NodeEdgeDef
 	Outputs   []NodeEdgeDef
 	Flags     []NodeFlagDef
+	Command   NodeCommandDef
 }
 
 type NodeFlagDef struct {
@@ -23,21 +25,27 @@ type NodeEdgeDef struct {
 	Type        []string
 }
 
+type NodeCommandDef struct {
+	Name        string
+	Description string
+	Exec        []string
+}
+
 type Node struct {
 	ID      int
 	DefName string
 	Inputs  []NodeEdge
 	Outputs []NodeEdge
+	Flags   []NodeFlag
+	Command string
 }
 
 type NodeEdge struct {
-	ID       int
-	Name     string
-	Required bool
-	Value    interface{}
+	Name string
+	ID   string
 }
 
-type NodeExecutePayload struct {
-	NodeDef NodeDef
-	Node    Node
+type NodeFlag struct {
+	Name  string
+	Value string
 }

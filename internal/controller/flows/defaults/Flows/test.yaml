@@ -4,6 +4,18 @@ AvailableNodes:
 Nodes:
   - ID: 0
     DefName: pupload/ffmpeg
+    Inputs:
+      - Name: VideoStream
+        ID: Pizza
+
+    Outputs:
+      - Name: VideoOut
+      - ID: compressed_vids
+
+    Flags: 
+      - Name: Flag
+        Value: Test123
+        
+    Command: Encode
     
 
-      

@@ -33,7 +33,6 @@ func NewServer(config config.CONTROLLER_CONFIG) http.Handler {
 
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		log.Printf("%s %s\n", method, route)
-		log.Println("test")
 		return nil
 	}
 
