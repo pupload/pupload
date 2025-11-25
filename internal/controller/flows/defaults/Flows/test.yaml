@@ -1,3 +1,9 @@
+Stores:
+  - Name: TestStore
+    Type: s3local
+    Params:
+      BucketName: test123
+      
 AvailableNodes:
   - pupload/ffmpeg
 
@@ -6,7 +12,8 @@ Nodes:
     DefName: pupload/ffmpeg
     Inputs:
       - Name: VideoStream
-        ID: Pizza
+        Store: TestStore
+        ID: test123
 
     Outputs:
       - Name: VideoOut

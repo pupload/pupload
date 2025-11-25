@@ -15,6 +15,9 @@ func NewWorkerServer() {
 		Addr: "localhost:6379",
 	}, asynq.Config{
 		Concurrency: 1,
+		Queues: map[string]int{
+			"worker": 1,
+		},
 	})
 
 	ds := container.CreateContainerService()

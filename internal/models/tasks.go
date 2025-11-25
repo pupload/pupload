@@ -1,10 +1,15 @@
 package models
 
 const (
+	TypeFlowStep        = "flow:step"
 	TypeNodeExecute     = "node:execute"
 	TypeNodeFinished    = "node:finished"
 	TypeControllerClean = "controller:clean"
 )
+
+type FlowStepPayload struct {
+	RunID string
+}
 
 type NodeExecutePayload struct {
 	NodeDef    NodeDef

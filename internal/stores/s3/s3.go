@@ -3,7 +3,6 @@ package s3
 import (
 	"context"
 	"crypto/tls"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -48,6 +47,7 @@ func NewS3Store(endpoint, accessKeyID, secretAccessKey, location, bucket string)
 	}
 }
 
+/*
 func (s *S3Store) PutFromFile(ctx context.Context, objectName, filePath, content_type string) (*minio.UploadInfo, error) {
 	info, err := s.client.FPutObject(ctx, s.bucket, objectName, filePath, minio.PutObjectOptions{
 		ContentType: content_type,
@@ -71,6 +71,7 @@ func (s *S3Store) PutFromStream(ctx context.Context, objectName string, data io.
 
 	return &info, nil
 }
+*/
 
 func (s *S3Store) PutPresignedURL(ctx context.Context, objectName string, expires time.Duration) (u *url.URL, err error) {
 	return s.client.PresignedPutObject(ctx, s.bucket, objectName, expires)
@@ -78,4 +79,12 @@ func (s *S3Store) PutPresignedURL(ctx context.Context, objectName string, expire
 
 func (s *S3Store) GetPresignedURL(ctx context.Context, objectName string, expires time.Duration) (u *url.URL, err error) {
 	return s.client.PresignedGetObject(ctx, s.bucket, objectName, expires, url.Values{})
+}
+
+func (s *S3Store) DeleteObject(ctx context.Context, objectName string) error {
+	return s.client.RemoveObject(ctx, s.bucket, objectName, minio.RemoveObjectOptions{})
+}
+
+func (s *S3Store) Close() {
+
 }

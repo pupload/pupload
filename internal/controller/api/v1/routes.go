@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func HandleAPIRoutes(f flows.FlowService) http.Handler {
+func HandleAPIRoutes(f *flows.FlowService) http.Handler {
 
 	r := chi.NewRouter()
 

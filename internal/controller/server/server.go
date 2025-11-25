@@ -10,17 +10,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/redis/go-redis/v9"
 )
 
-func NewServer(config config.CONTROLLER_CONFIG) http.Handler {
+func NewServer(config config.CONTROLLER_CONFIG, f *flows.FlowService) http.Handler {
 	r := chi.NewRouter()
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-
-	f := flows.CreateFlowService(config.Storage.DataPath, rdb)
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)

@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"pupload/internal/models"
 
@@ -28,31 +29,53 @@ func (n NodeService) HandleNodeExecuteTask(ctx context.Context, t *asynq.Task) e
 		return err
 	}
 
+	ups := n.GetInputStreams(p.InputURLs, "/tmp")
+	for val, key := range ups {
+		fmt.Println(ups)
+		env = append(env, fmt.Sprintf("%s=%s", val, key.path))
+	}
+
 	res, err := n.ContainerService.DockerClient.ContainerCreate(ctx, client.ContainerCreateOptions{
 		Config: &container.Config{
 			Env: env,
 			Cmd: []string{"-h"},
 		},
+		HostConfig: &container.HostConfig{
+			AutoRemove: true,
+		},
 		Image: p.NodeDef.Image,
-		Name:  "test",
+		Name:  "test2",
 	})
 
 	container_id := res.ID
-	defer n.ContainerService.DockerClient.ContainerRemove(ctx, container_id, client.ContainerRemoveOptions{
-	 	RemoveVolumes: true,
-	})
 
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	n.ContainerService.DockerClient.CopyToContainer(ctx, container_id, client.CopyToContainerOptions{})
+	for key, val := range ups {
+		fmt.Println(key)
+		_, err := n.ContainerService.DockerClient.CopyToContainer(ctx, container_id, client.CopyToContainerOptions{
+			DestinationPath: val.base_path,
+			Content:         val.reader,
+		})
+
+		if err != nil {
+			fmt.Printf("Error copying url to file: %s", err)
+		}
+
+		val.reader.Close()
+	}
 
 	if _, err := n.ContainerService.DockerClient.ContainerStart(ctx, container_id, client.ContainerStartOptions{}); err != nil {
-		log.Println(err)
+		log.Printf("Error Starting docker container: %s", err)
 		return err
 	}
+
+	n.ContainerService.DockerClient.ContainerWait(context.TODO(), container_id, client.ContainerWaitOptions{
+		Condition: container.WaitConditionNotRunning,
+	})
 
 	return nil
 }

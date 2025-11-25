@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func handleFlowRoutes(f flows.FlowService) http.Handler {
+func handleFlowRoutes(f *flows.FlowService) http.Handler {
 
 	r := chi.NewRouter()
 

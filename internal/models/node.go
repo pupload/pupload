@@ -43,6 +43,8 @@ type Node struct {
 type NodeEdge struct {
 	Name string
 	ID   string
+
+	Store *string // optional
 }
 
 type NodeFlag struct {
