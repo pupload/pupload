@@ -42,7 +42,7 @@ type Node struct {
 
 type NodeEdge struct {
 	Name string
-	ID   string
+	Edge string
 
 	Store *string // optional
 }

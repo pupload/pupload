@@ -24,6 +24,7 @@ const (
 type Artifact struct {
 	StoreName  string
 	ObjectName string
+	EdgeName   string
 }
 
 type WaitingURL struct {
@@ -113,47 +114,103 @@ func (f *FlowService) updateFlowRun(flowRun FlowRun) error {
 
 func (f *FlowService) initalizeWaitingURLs(flowrun *FlowRun) error {
 
-	for nodeID := range f.NodeLength(flowrun.FlowName) {
-		node := f.GetNode(flowrun.FlowName, nodeID)
-		for _, input := range node.Inputs {
-			if input.Store == nil {
-				continue
-			}
-
-			store, ok := f.GetStore(flowrun.FlowName, *input.Store)
-			if !ok {
-				continue
-			}
-
-			artifact := Artifact{
-				StoreName:  *input.Store,
-				ObjectName: input.ID,
-			}
-
-			url, err := store.PutURL(context.TODO(), artifact.ObjectName, 10*time.Second)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-
-			waitingURL := WaitingURL{
-				Artifact: artifact,
-				PutURL:   url.String(),
-			}
-
-			flowrun.WaitingURLs = append(flowrun.WaitingURLs, waitingURL)
-
-		}
+	flow, err := f.GetFlow(flowrun.FlowName)
+	if err != nil {
+		return err
 	}
 
-	err := f.updateFlowRun(*flowrun)
+	for _, datawell := range flow.DataWells {
+		if datawell.Type != "dynamic" {
+			continue
+		}
+
+		var key string
+		if datawell.Key == nil {
+			key = fmt.Sprintf("%s_%s", datawell.Edge, flowrun.ID)
+		} else {
+			key = f.getDataWellKey("beepboop", *flowrun)
+		}
+
+		store, ok := f.GetStore(flowrun.FlowName, datawell.Store)
+		if !ok {
+			return fmt.Errorf("Store %s does not exists", datawell.Store)
+		}
+
+		artifact := Artifact{
+			StoreName:  datawell.Store,
+			ObjectName: key,
+			EdgeName:   datawell.Edge,
+		}
+
+		url, err := store.PutURL(context.TODO(), artifact.ObjectName, 10*time.Second)
+		if err != nil {
+			return fmt.Errorf("Store %s could not generate put url: %s", datawell.Store, err)
+		}
+
+		WaitingURL := WaitingURL{
+			Artifact: artifact,
+			PutURL:   url.String(),
+		}
+
+		flowrun.WaitingURLs = append(flowrun.WaitingURLs, WaitingURL)
+
+	}
+
+	err = f.updateFlowRun(*flowrun)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
 	return nil
 }
+
+func (f *FlowService) getDataWellKey(key string, flowrun FlowRun) string {
+	return key
+}
+
+// func (f *FlowService) initalizeWaitingURLs(flowrun *FlowRun) error {
+
+// 	for nodeID := range f.NodeLength(flowrun.FlowName) {
+// 		node := f.GetNode(flowrun.FlowName, nodeID)
+// 		for _, input := range node.Inputs {
+// 			if input.Store == nil {
+// 				continue
+// 			}
+
+// 			store, ok := f.GetStore(flowrun.FlowName, *input.Store)
+// 			if !ok {
+// 				continue
+// 			}
+
+// 			artifact := Artifact{
+// 				StoreName:  *input.Store,
+// 				ObjectName: input.Edge,
+// 			}
+
+// 			url, err := store.PutURL(context.TODO(), artifact.ObjectName, 10*time.Second)
+// 			if err != nil {
+// 				fmt.Println(err)
+// 				continue
+// 			}
+
+// 			waitingURL := WaitingURL{
+// 				Artifact: artifact,
+// 				PutURL:   url.String(),
+// 			}
+
+// 			flowrun.WaitingURLs = append(flowrun.WaitingURLs, waitingURL)
+
+// 		}
+// 	}
+
+// 	err := f.updateFlowRun(*flowrun)
+// 	if err != nil {
+// 		fmt.Println(err)f
+// 		return err
+// 	}
+
+// 	return nil
+// }
 
 func (f *FlowService) checkWaitingUrls(flowrun *FlowRun) (bool, error) {
 
@@ -168,7 +225,7 @@ func (f *FlowService) checkWaitingUrls(flowrun *FlowRun) (bool, error) {
 		exists := store.Exists(waitingUrl.Artifact.ObjectName)
 		if exists {
 
-			flowrun.Artifacts[waitingUrl.Artifact.ObjectName] = waitingUrl.Artifact
+			flowrun.Artifacts[waitingUrl.Artifact.EdgeName] = waitingUrl.Artifact
 
 			// TODO: Handle oob's edge case
 			flowrun.WaitingURLs = append(flowrun.WaitingURLs[:i], flowrun.WaitingURLs[i+1:]...)

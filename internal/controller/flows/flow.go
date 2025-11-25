@@ -1,6 +1,7 @@
 package flows
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"pupload/internal/models"
@@ -11,7 +12,17 @@ func (f *FlowService) ListFlows() map[string]models.Flow {
 	return f.FlowList
 }
 
-func (f *FlowService) StartFlow(name string) (string, error) {
+func (f *FlowService) GetFlow(name string) (models.Flow, error) {
+
+	flow, ok := f.FlowList[name]
+	if !ok {
+		return flow, fmt.Errorf("pooo %s does not exist", name)
+	}
+
+	return flow, nil
+}
+
+func (f *FlowService) StartFlow(ctx context.Context, name string) (string, error) {
 	flow, exists := f.FlowList[name]
 	if !exists {
 		return "", fmt.Errorf("Flow %s does not exist", name)
@@ -27,7 +38,7 @@ func (f *FlowService) StartFlow(name string) (string, error) {
 		return "", err
 	}
 
-	err = f.HandleStepFlow(flowRun.ID)
+	err = f.HandleStepFlow(ctx, flowRun.ID)
 
 	if err != nil {
 		return "", err
@@ -36,7 +47,7 @@ func (f *FlowService) StartFlow(name string) (string, error) {
 	return flowRun.ID, nil
 }
 
-func (f *FlowService) HandleStepFlow(id string) error {
+func (f *FlowService) HandleStepFlow(ctx context.Context, id string) error {
 
 	run, err := f.GetFlowRun(id)
 	if err != nil {
@@ -59,12 +70,12 @@ func (f *FlowService) HandleStepFlow(id string) error {
 		if len(nodesToRun) == 0 {
 			run.Status = FLOWRUN_WAITING
 			f.updateFlowRun(run)
-			return f.HandleStepFlow(id)
+			return f.HandleStepFlow(ctx, id)
 		}
 
 		run.Status = FLOWRUN_RUNNING
 		f.updateFlowRun(run)
-		return f.HandleStepFlow(id)
+		return f.HandleStepFlow(ctx, id)
 
 	case FLOWRUN_WAITING:
 
@@ -76,7 +87,7 @@ func (f *FlowService) HandleStepFlow(id string) error {
 		if updated {
 			run.Status = FLOWRUN_RUNNING
 			f.updateFlowRun(run)
-			return f.HandleStepFlow(id)
+			return f.HandleStepFlow(ctx, id)
 		}
 
 		if err := f.EnqueueFlowStepTask(id, time.Second*3); err != nil {
@@ -93,7 +104,7 @@ func (f *FlowService) HandleStepFlow(id string) error {
 
 		run.Status = FLOWRUN_WAITING
 		f.updateFlowRun(run)
-		return f.HandleStepFlow(id)
+		return f.HandleStepFlow(ctx, id)
 	}
 
 	return nil
@@ -101,9 +112,10 @@ func (f *FlowService) HandleStepFlow(id string) error {
 
 func (f *FlowService) GetStore(flowName string, storeName string) (store models.Store, ok bool) {
 
-	stores, ok := f.GlobalStoreMap[storeName]
+	// prefer local store for the given flow, fall back to global store
+	stores, ok := f.LocalStoreMap[LocalStoreKey{flowName, storeName}]
 	if !ok {
-		stores, ok = f.LocalStoreMap[LocalStoreKey{flowName, storeName}]
+		stores, ok = f.GlobalStoreMap[storeName]
 	}
 
 	return stores, ok
@@ -124,7 +136,7 @@ func (f *FlowService) nodesAvailableToRun(flowRun FlowRun) []int {
 		node := f.FlowList[flowRun.FlowName].Nodes[i]
 		for _, input := range node.Inputs {
 
-			_, ok := flowRun.Artifacts[input.ID]
+			_, ok := flowRun.Artifacts[input.Edge]
 			if !ok {
 				runnable = false
 				break

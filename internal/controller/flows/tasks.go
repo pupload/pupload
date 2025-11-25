@@ -29,7 +29,7 @@ func (f *FlowService) HandleFlowStepTask(ctx context.Context, t *asynq.Task) err
 
 	log.Printf("Running Flow ID: %s\n", p.RunID)
 
-	go f.HandleStepFlow(p.RunID)
+	go f.HandleStepFlow(ctx, p.RunID)
 
 	return nil
 }

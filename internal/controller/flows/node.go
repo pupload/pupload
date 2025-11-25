@@ -27,12 +27,12 @@ func (f *FlowService) HandleExecuteNode(run FlowRun, nodeIndex int) {
 
 	inputs := make(map[string]string)
 	for _, edge := range node.Inputs {
-		artifact := run.Artifacts[edge.ID]
+		artifact := run.Artifacts[edge.Edge]
 
 		store, _ := f.GetStore(run.FlowName, artifact.StoreName)
 		url, err := store.GetURL(context.TODO(), artifact.ObjectName, 1*time.Hour)
 		if err != nil {
-			fmt.Printf(err.Error())
+			fmt.Println(err.Error())
 		}
 
 		inputs[edge.Name] = url.String()

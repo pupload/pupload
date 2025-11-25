@@ -25,7 +25,7 @@ func handleFlowRoutes(f *flows.FlowService) http.Handler {
 			return
 		}
 
-		taskID, err := f.StartFlow(flowName)
+		taskID, err := f.StartFlow(r.Context(), flowName)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

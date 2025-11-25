@@ -41,7 +41,7 @@ func (n NodeService) HandleNodeExecuteTask(ctx context.Context, t *asynq.Task) e
 			Cmd: []string{"-h"},
 		},
 		HostConfig: &container.HostConfig{
-			AutoRemove: true,
+			AutoRemove: false,
 		},
 		Image: p.NodeDef.Image,
 		Name:  "test2",

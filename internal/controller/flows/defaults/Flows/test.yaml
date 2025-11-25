@@ -7,17 +7,22 @@ Stores:
 AvailableNodes:
   - pupload/ffmpeg
 
+DataWells:
+  - Store: TestStore
+    Edge: teststore_input
+    Type: dynamic
+
+
 Nodes:
   - ID: 0
     DefName: pupload/ffmpeg
     Inputs:
       - Name: VideoStream
-        Store: TestStore
-        ID: test123
+        Edge: teststore_input
 
     Outputs:
       - Name: VideoOut
-      - ID: compressed_vids
+        Edge: compressed_vids
 
     Flags: 
       - Name: Flag
@@ -26,3 +31,4 @@ Nodes:
     Command: Encode
     
 
+  
