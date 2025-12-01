@@ -125,11 +125,6 @@ func (f *FlowService) HandleNodeFinishedTask(ctx context.Context, t *asynq.Task)
 		return fmt.Errorf("flowrun lock %s currently being held", p.RunID)
 	}
 
-	//run, err := f.GetFlowRun(p.RunID)
-	// if err != nil {
-	// 	return err
-	// }
-
 	return nil
 }
 
