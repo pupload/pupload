@@ -32,6 +32,12 @@ func (f *FlowService) ValidateFlow(flow *models.Flow) error {
 
 	// Check if DefaultStore is set
 	if flow.DefaultStore == nil {
+		fmt.Println(flow)
+
+		if len(flow.Stores) == 0 {
+			return fmt.Errorf("no stores are defined")
+		}
+
 		storeName := flow.Stores[0]
 		flow.DefaultStore = &storeName.Name
 	}

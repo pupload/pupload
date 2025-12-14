@@ -26,8 +26,6 @@ type FlowService struct {
 	asynqServer *asynq.Server
 	rs          *redsync.Redsync
 
-	savedStored map[string](map[string]models.Store)
-
 	scheduler *scheduler.Scheduler
 	log       *slog.Logger
 }
@@ -66,8 +64,6 @@ func CreateFlowService(rdb *redis.Client) *FlowService {
 
 		runtimeRepo: runtimeStore,
 
-		savedStored: make(map[string](map[string]models.Store)),
-
 		log:       slog,
 		scheduler: flowRunScheduler,
 	}
@@ -99,12 +95,10 @@ func (f *FlowService) RunFlow(flow models.Flow, nodeDefs []models.NodeDef) (mode
 		return models.FlowRun{}, err
 	}
 
-	runtime, stores, err := runtime.CreateRuntimeFlow(flow, nodeDefs)
+	runtime, err := runtime.CreateRuntimeFlow(flow, nodeDefs)
 	if err != nil {
 		return models.FlowRun{}, err
 	}
-
-	f.savedStored[runtime.FlowRun.ID] = stores
 
 	runtime.Start(f.asynqClient)
 	f.runtimeRepo.SaveRuntime(runtime)
@@ -121,7 +115,6 @@ func (f *FlowService) Status(runID string) (models.FlowRun, error) {
 }
 
 func (f *FlowService) HandleFlowComplete(runID string) error {
-	delete(f.savedStored, runID)
 	f.runtimeRepo.DeleteRuntime(runID)
 	return nil
 }

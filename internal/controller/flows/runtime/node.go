@@ -3,7 +3,6 @@ package runtime
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"pupload/internal/models"
 	"time"
@@ -31,18 +30,16 @@ func (rt *RuntimeFlow) handleExecuteNode(nodeID string, asynqClient *asynq.Clien
 	outputs := make(map[string]string)
 	for _, edge := range node.Outputs {
 
-		artifact := models.Artifact{
-			StoreName:  *rt.Flow.DefaultStore,
-			ObjectName: fmt.Sprintf("%s-%s", edge.Edge, rt.FlowRun.ID),
-			EdgeName:   edge.Edge,
+		artifact, err := rt.makeOutputArtifact(edge)
+		if err != nil {
+			return err
 		}
 
-		if rt.Flow.DefaultStore == nil {
-			rt.log.Error("default flow store is nil")
-			return errors.New("default flow store is nil")
+		store, ok := rt.stores[artifact.StoreName]
+		if !ok {
+			rt.log.Error("unable to acquire store", "store_name", artifact.StoreName)
+			return fmt.Errorf("unable to acquire store described in artifact")
 		}
-
-		store, _ := rt.stores[*rt.Flow.DefaultStore]
 
 		url, err := store.PutURL(context.TODO(), artifact.ObjectName, 10*time.Second)
 		if err != nil {
@@ -52,7 +49,7 @@ func (rt *RuntimeFlow) handleExecuteNode(nodeID string, asynqClient *asynq.Clien
 
 		outputs[edge.Name] = url.String()
 		WaitingURL := models.WaitingURL{
-			Artifact: artifact,
+			Artifact: *artifact,
 			PutURL:   url.String(),
 			TTL:      time.Now().Add(10 * time.Second),
 		}
@@ -66,6 +63,35 @@ func (rt *RuntimeFlow) handleExecuteNode(nodeID string, asynqClient *asynq.Clien
 	}
 
 	return nil
+}
+
+func (rt *RuntimeFlow) makeOutputArtifact(edge models.NodeEdge) (*models.Artifact, error) {
+	for _, well := range rt.Flow.DataWells {
+		if well.Edge != edge.Edge {
+			continue
+		}
+
+		artifact := models.Artifact{
+			StoreName:  well.Store,
+			EdgeName:   well.Edge,
+			ObjectName: rt.processDatawellKey(well),
+		}
+
+		return &artifact, nil
+	}
+
+	if rt.Flow.DefaultStore == nil {
+		return nil, fmt.Errorf("default store is nil")
+	}
+
+	artifact := models.Artifact{
+		StoreName:  *rt.Flow.DefaultStore,
+		ObjectName: fmt.Sprintf("%s-%s", edge.Edge, rt.FlowRun.ID),
+		EdgeName:   edge.Edge,
+	}
+
+	return &artifact, nil
+
 }
 
 func (rt *RuntimeFlow) HandleNodeFinished(nodeID string, logs []models.LogRecord) error {

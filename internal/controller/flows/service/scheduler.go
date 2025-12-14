@@ -75,7 +75,7 @@ func (f *FlowService) HandleFlowStepTask(ctx context.Context, t *asynq.Task) err
 		f.log.Error("unable to get runtime flow from runtimeRepo", "runID", p.RunID)
 	}
 
-	runtime.RebuildRuntimeFlow(f.savedStored[p.RunID])
+	runtime.RebuildRuntimeFlow()
 	runtime.Step(f.asynqClient)
 	if runtime.IsComplete() {
 		f.HandleFlowComplete(p.RunID)
@@ -125,7 +125,7 @@ func (f *FlowService) HandleNodeFinishedTask(ctx context.Context, t *asynq.Task)
 		return err
 	}
 
-	runtime.RebuildRuntimeFlow(f.savedStored[p.RunID])
+	runtime.RebuildRuntimeFlow()
 
 	if err := runtime.HandleNodeFinished(p.NodeID, p.Logs); err != nil {
 		f.log.Error("HandleNodeFinishedTask: error handling node finished", "run_id", p.RunID, "node_id", p.NodeID, "err", err)

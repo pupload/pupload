@@ -1,3 +1,5 @@
+Name: testFlow
+
 Stores:
   - Name: TestStore
     Type: s3local

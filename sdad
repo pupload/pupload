@@ -1,0 +1,19 @@
+
+
+
+
+┌─ Inputs ───────────────────────────────────────────────────────────────────────────────────┐
+|                                                                                            |
+|  • Edge1 (https://s3.com/sadasdsadsadadsadsadsadsadsad...)                       5s left   |
+|  • Edge2 (https://s3.com/sadasdsadsadadsadsadsadsadsad...)                      39m left   |
+|  • Edge3 (https://s3.com/sadasdsadsadadsadsadsadsadsad...)                       2h left   |
+|  • Edge4 (https://s3.com/sadasdsadsadadsadsadsadsadsad...)                       1d left   |
+|                                                                                            |
+├─ Nodes ────────────────────────────────────────────────────────────────────────────────────┤
+|                                                                                            |
+|  ▼ Node1 (pupload/ffmpeg)                                                           IDLE   |
+|  ▼ Node2 (pupload/ffmpeg)                                                           IDLE   |
+|  ▼ Node3 (pupload/ffmpeg)                                                           IDLE   |
+|  ▼ Node4 (pupload/ffmpeg)                                                           IDLE   |
+|                                                                                            |
+└────────────────────────────────────────────────────────────────────────────────────────────┘

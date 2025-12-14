@@ -29,7 +29,7 @@ type RuntimeNode struct {
 	NodeDef models.NodeDef
 }
 
-func CreateRuntimeFlow(flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow, map[string]models.Store, error) {
+func CreateRuntimeFlow(flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow, error) {
 	// Unmarshal Stores
 
 	runtimeFlow := RuntimeFlow{
@@ -43,25 +43,25 @@ func CreateRuntimeFlow(flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow
 	runtimeFlow.constructStores()
 	err := runtimeFlow.constructRuntimeNode()
 	if err != nil {
-		return runtimeFlow, nil, err
+		return runtimeFlow, err
 	}
 
 	runtimeFlow.createFlowRun()
 	runtimeFlow.constructLogger()
 
 	if err := runtimeFlow.initialDatawellProcessing(); err != nil {
-		return runtimeFlow, nil, err
+		return runtimeFlow, err
 	}
 
-	return runtimeFlow, runtimeFlow.stores, nil
+	return runtimeFlow, nil
 }
 
-func (rt *RuntimeFlow) RebuildRuntimeFlow(stores map[string]models.Store) {
+func (rt *RuntimeFlow) RebuildRuntimeFlow() {
 
-	rt.stores = stores
 	rt.nodes = make(map[string]RuntimeNode)
+	rt.stores = make(map[string]models.Store)
 
-	// rt.constructStores()
+	rt.constructStores()
 	rt.constructRuntimeNode()
 	rt.constructLogger()
 }
@@ -147,6 +147,16 @@ func (rt *RuntimeFlow) initialDatawellProcessing() error {
 }
 
 func (rt *RuntimeFlow) handleDynamicWaitingURL(dw models.DataWell) error {
+
+	// If a datawell is referenced as an output (i.e it takes in an input),
+	// that means it is ineligable for generating a waiting URL.
+	for _, nodes := range rt.nodes {
+		for _, output := range nodes.Outputs {
+			if output.Edge == dw.Edge {
+				return nil
+			}
+		}
+	}
 
 	key := rt.processDatawellKey(dw)
 	store, ok := rt.stores[dw.Store]
