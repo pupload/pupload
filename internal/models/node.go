@@ -22,7 +22,7 @@ type NodeEdgeDef struct {
 	Name        string
 	Description string
 	Required    bool
-	Type        []string
+	Type        []MimeType
 }
 
 type NodeCommandDef struct {

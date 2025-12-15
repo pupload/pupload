@@ -94,7 +94,7 @@ func (f *FlowService) RunFlow(flow models.Flow, nodeDefs []models.NodeDef) (mode
 
 	flow.Normalize()
 
-	if err := validation.ValidateFlow(flow); err != nil {
+	if err := validation.ValidateFlow(flow, nodeDefs); err != nil {
 		f.log.Error("unable to validate flow", "err", err)
 		return models.FlowRun{}, err
 	}

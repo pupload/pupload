@@ -1,12 +1,13 @@
 package validation
 
 import (
+	"errors"
 	"fmt"
 	"pupload/internal/models"
 	"slices"
 )
 
-func ValidateFlow(flow models.Flow) error {
+func ValidateFlow(flow models.Flow, nodeDefs []models.NodeDef) error {
 
 	edgeCount := generateEdgeCount(flow)
 
@@ -37,19 +38,36 @@ func ValidateFlow(flow models.Flow) error {
 		dwEdgeSeen[well.Edge] = struct{}{}
 	}
 
-	// Check if DefaultStore is set
-	if flow.DefaultStore == nil {
-		fmt.Println(flow)
+	return nil
+}
 
-		if len(flow.Stores) == 0 {
-			return fmt.Errorf("no stores are defined")
+var ErrNodeTypeMismatch = errors.New("Invalid type on node")
+var ErrNodeDefNotFound = errors.New("Node def not found")
+
+func typeCheckFlow(flow models.Flow, nodeDefs []models.NodeDef) error {
+
+	// edgeTypeMap := make(map[string]string)
+
+	for _, node := range flow.Nodes {
+		def := new(models.NodeDef)
+
+		for _, d := range nodeDefs {
+			if d.Name == node.DefName {
+				def = &d
+			}
 		}
 
-		storeName := flow.Stores[0]
-		flow.DefaultStore = &storeName.Name
+		if def == nil {
+			return ErrNodeDefNotFound
+		}
+
 	}
 
 	return nil
+}
+
+func doTypeSetsOverlap() {
+
 }
 
 func isValidDatawellSource(dw models.DataWell) bool {

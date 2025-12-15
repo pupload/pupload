@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	flows "pupload/internal/controller/flows/service"
 	"pupload/internal/logging"
@@ -63,7 +64,7 @@ func handleFlowRoutes(f *flows.FlowService) http.Handler {
 		run, err := f.RunFlow(input.Flow, input.NodeDefs)
 		if err != nil {
 			log.Error("unable to run flow", "err", err)
-			http.Error(w, "unable to run flow", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("unable to run flow: %s", err), http.StatusInternalServerError)
 			return
 		}
 

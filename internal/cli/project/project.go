@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -71,6 +72,12 @@ func TestFlow(projectRoot, controllerAddress, flowName string) (*models.FlowRun,
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+
+		return nil, fmt.Errorf("TestFlow: Controller could not run flow: %s", string(body))
+	}
 
 	flow_run := new(models.FlowRun)
 	err = json.NewDecoder(resp.Body).Decode(flow_run)
