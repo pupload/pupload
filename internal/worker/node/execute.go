@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExecutePayload) error {
+func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExecutePayload, resource container.Resources) error {
 
 	l := logging.LoggerFromCtx(ctx)
 
@@ -38,13 +38,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 
 		HostConfig: &container.HostConfig{
 			AutoRemove: false,
-			Resources: container.Resources{
-				DeviceRequests: []container.DeviceRequest{{
-					Driver:       "nvidia",
-					Count:        1,
-					Capabilities: [][]string{{"compute", "video"}},
-				}},
-			},
+			Resources:  resource,
 		},
 	})
 
@@ -84,7 +78,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 	if err != nil {
 		return err
 	}
-	_ = logs
+	l.Info("container logs", "logs", logs)
 
 	if res.ExitCode != 0 {
 		return fmt.Errorf("contained exited with non-0 exit code")

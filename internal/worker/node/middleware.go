@@ -7,9 +7,11 @@ import (
 	"pupload/internal/logging"
 	"pupload/internal/models"
 	"pupload/internal/syncplane"
+
+	"github.com/moby/moby/api/types/container"
 )
 
-func (ns *NodeService) FinishedMiddleware(ctx context.Context, payload syncplane.NodeExecutePayload) error {
+func (ns *NodeService) FinishedMiddleware(ctx context.Context, payload syncplane.NodeExecutePayload, resource container.Resources) error {
 
 	logs := make([]models.LogRecord, 0, 64)
 	ch := &logging.CollectHandler{
@@ -30,7 +32,7 @@ func (ns *NodeService) FinishedMiddleware(ctx context.Context, payload syncplane
 
 	ctx = logging.CtxWithLogger(ctx, jobLog)
 
-	err := ns.NodeExecute(ctx, payload)
+	err := ns.NodeExecute(ctx, payload, resource)
 	if err == nil {
 
 		if err := ns.SyncLayer.EnqueueNodeFinished(syncplane.NodeFinishedPayload{

@@ -9,6 +9,7 @@ type NodeDef struct {
 	Outputs   []NodeEdgeDef
 	Flags     []NodeFlagDef
 	Command   NodeCommandDef
+	Tier      *string
 }
 
 type NodeFlagDef struct {
@@ -29,23 +30,6 @@ type NodeCommandDef struct {
 	Name        string
 	Description string
 	Exec        string
-}
-
-type NodeResourceDef struct {
-	CPU     *float32
-	Memory  *string
-	Storage *string
-	Timeout *string
-	GPU     *NodeGPURequirementsDef
-}
-
-type NodeGPURequirementsDef struct {
-	Required    bool
-	Count       int
-	MimMemoryGB float64
-	Vendor      string // nvidia, intel, amd, or any.
-
-	RequiredFeatures []string // options: compute, video-encode, video-decode, graphics, ml-training, ml-inference, ray-tracing
 }
 
 type Node struct {

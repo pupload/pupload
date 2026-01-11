@@ -22,7 +22,7 @@ func main() {
 		Format:  "json",
 	})
 
-	s, err := syncplane.CreateWorkerSyncLayer(cfg.SyncPlane)
+	s, err := syncplane.CreateWorkerSyncLayer(cfg.SyncPlane, cfg.Resources)
 	if err != nil {
 		return
 	}

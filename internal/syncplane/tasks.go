@@ -3,6 +3,8 @@ package syncplane
 import (
 	"context"
 	"pupload/internal/models"
+
+	"github.com/moby/moby/api/types/container"
 )
 
 const (
@@ -13,7 +15,7 @@ const (
 	TypeControllerClean = "controller:clean"
 )
 
-type ExecuteNodeHandler func(ctx context.Context, payload NodeExecutePayload) error
+type ExecuteNodeHandler func(ctx context.Context, payload NodeExecutePayload, resource container.Resources) error
 type NodeExecutePayload struct {
 	RunID      string
 	NodeDef    models.NodeDef

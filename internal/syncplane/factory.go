@@ -1,6 +1,9 @@
 package syncplane
 
-import "fmt"
+import (
+	"fmt"
+	"pupload/internal/resources"
+)
 
 func CreateControllerSyncLayer(cfg SyncPlaneSettings) (SyncLayer, error) {
 	switch cfg.SelectedSyncPlane {
@@ -11,11 +14,11 @@ func CreateControllerSyncLayer(cfg SyncPlaneSettings) (SyncLayer, error) {
 	return nil, fmt.Errorf("")
 }
 
-func CreateWorkerSyncLayer(cfg SyncPlaneSettings) (SyncLayer, error) {
+func CreateWorkerSyncLayer(cfg SyncPlaneSettings, rCfg resources.ResourceSettings) (SyncLayer, error) {
 
 	switch cfg.SelectedSyncPlane {
 	case "redis":
-		return NewWorkerRedisSyncLayer(cfg), nil
+		return NewWorkerRedisSyncLayer(cfg, rCfg), nil
 	}
 	return nil, fmt.Errorf("")
 }

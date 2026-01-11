@@ -1,13 +1,14 @@
 package config
 
 import (
+	"pupload/internal/resources"
 	"pupload/internal/syncplane"
 )
 
 type WorkerConfig struct {
 	Worker    WorkerSettings
 	SyncPlane syncplane.SyncPlaneSettings
-	Resources ResourceSettings
+	Resources resources.ResourceSettings
 	Runtime   RuntimeSettings
 
 	Logging  LoggingSettings
@@ -29,15 +30,6 @@ type RuntimeSettings struct {
 
 type GvisorSettings struct {
 	Platform string `json:"platform"` // systrap, kvm, ptrace
-}
-
-type ResourceSettings struct {
-	MaxJobs int `json:"max_jobs"`
-
-	MaxCPU     float32 // 0.5, 2, 1, etc.
-	MaxMemory  string  // 1G, 512MB, etc.
-	MaxStorage string  // 1G, 512MB, etc.
-	MaxTimeout string  // 1H, 30s, 20m, etc.
 }
 
 type LoggingSettings struct {
@@ -69,12 +61,10 @@ func DefaultConfig() *WorkerConfig {
 			},
 		},
 
-		Resources: ResourceSettings{
-			MaxJobs:    3,
-			MaxCPU:     4.0,
-			MaxMemory:  "8GB",
-			MaxStorage: "50GB",
-			MaxTimeout: "2h",
+		Resources: resources.ResourceSettings{
+			MaxCPU:     "auto",
+			MaxMemory:  "8gb",
+			MaxStorage: "50gb",
 		},
 
 		Runtime: RuntimeSettings{

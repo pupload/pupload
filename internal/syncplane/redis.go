@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"pupload/internal/resources"
+	"sync"
 	"time"
 
 	"github.com/go-redsync/redsync/v4"
@@ -22,6 +24,10 @@ type RedisSync struct {
 	scheduler *asynq.PeriodicTaskManager
 
 	mux *asynq.ServeMux
+
+	workerResourceManger *resources.ResourceManager
+
+	mu sync.Mutex
 }
 
 func NewControllerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
@@ -69,7 +75,7 @@ func NewControllerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
 	return redisSync
 }
 
-func NewWorkerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
+func NewWorkerRedisSyncLayer(cfg SyncPlaneSettings, rCfg resources.ResourceSettings) *RedisSync {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.Redis.Address,
 		Password: cfg.Redis.Password,
@@ -79,12 +85,17 @@ func NewWorkerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
 		PoolSize:   cfg.Redis.PoolSize,
 	})
 
+	rm, err := resources.CreateResourceManager(rCfg)
+	if err != nil {
+		panic(fmt.Sprintf("unable to create resource manager: %s", err))
+	}
+
+	queueMap := rm.GetValidTierMap()
+
 	asynqClient := asynq.NewClientFromRedisClient(rdb)
 	asynqServer := asynq.NewServerFromRedisClient(rdb, asynq.Config{
 		Concurrency: 10,
-		Queues: map[string]int{
-			"worker": 1,
-		},
+		Queues:      queueMap,
 	})
 
 	pool := goredis.NewPool(rdb)
@@ -96,7 +107,8 @@ func NewWorkerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
 		asynqServer: asynqServer,
 		redsync:     rs,
 
-		mux: asynq.NewServeMux(),
+		mux:                  asynq.NewServeMux(),
+		workerResourceManger: rm,
 	}
 
 	return redisSync
@@ -111,10 +123,61 @@ func (r *RedisSync) RegisterExecuteNodeHandler(handler ExecuteNodeHandler) error
 		var p NodeExecutePayload
 		err := json.Unmarshal(t.Payload(), &p)
 		if err != nil {
-			return fmt.Errorf("RegisterExecuteNodeHandler: Error unmarshaling payload: %w", err)
+			return fmt.Errorf("ExecuteNodeHandler: Error unmarshaling payload: %w", err)
 		}
-		return handler(ctx, p)
+
+		if p.NodeDef.Tier == nil {
+			tmp := "c-micro"
+			p.NodeDef.Tier = &tmp
+		}
+
+		if err := r.tryReserve(*p.NodeDef.Tier); err != nil {
+			return err
+		}
+		defer r.tryRelease(*p.NodeDef.Tier)
+
+		res, err := r.workerResourceManger.GenerateContainerResource(*p.NodeDef.Tier)
+		if err != nil {
+			return err
+		}
+
+		if err := handler(ctx, p, res); err != nil {
+			return err
+		}
+
+		return nil
 	})
+
+	return nil
+}
+
+func (r *RedisSync) tryReserve(s string) error {
+	fmt.Println(s)
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if err := r.workerResourceManger.Reserve(s); err != nil {
+		return fmt.Errorf("ExecuteNodeHandler: Could not reserve resource %s: %w", s, err)
+	}
+	fmt.Println("resource reserved")
+
+	queueMap := r.workerResourceManger.GetValidTierMap()
+	fmt.Println(queueMap)
+
+	r.asynqServer.SetQueues(queueMap, false)
+
+	return nil
+}
+
+func (r *RedisSync) tryRelease(s string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if err := r.workerResourceManger.Release(s); err != nil {
+		return fmt.Errorf("ExecuteNodeHandler: Could not release resource %s: %w", s, err)
+	}
+
+	queueMap := r.workerResourceManger.GetValidTierMap()
+
+	r.asynqServer.SetQueues(queueMap, false)
 
 	return nil
 }
@@ -125,7 +188,12 @@ func (r *RedisSync) EnqueueExecuteNode(payload NodeExecutePayload) error {
 		return err
 	}
 
-	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue("worker"))
+	queue := "worker"
+	if payload.NodeDef.Tier != nil {
+		queue = *payload.NodeDef.Tier
+	}
+
+	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue(queue))
 	if _, err := r.asynqClient.Enqueue(task); err != nil {
 		return err
 	}
