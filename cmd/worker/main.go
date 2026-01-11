@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"pupload/internal/logging"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 	"pupload/internal/worker/config"
 	"pupload/internal/worker/container"
 	"pupload/internal/worker/server"
@@ -21,6 +22,16 @@ func main() {
 		Level:   slog.LevelInfo,
 		Format:  "json",
 	})
+
+	test_tel_config := telemetry.TelemetrySettings{
+		Enabled:    true,
+		Exporter:   telemetry.ExporterOTLP,
+		Endpoint:   "localhost:4317",
+		Insecure:   true,
+		SampleRate: 1.0,
+	}
+
+	telemetry.Init(test_tel_config, "pupload.worker")
 
 	s, err := syncplane.CreateWorkerSyncLayer(cfg.SyncPlane, cfg.Resources)
 	if err != nil {

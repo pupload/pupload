@@ -126,17 +126,16 @@ func (r *RedisSync) RegisterExecuteNodeHandler(handler ExecuteNodeHandler) error
 			return fmt.Errorf("ExecuteNodeHandler: Error unmarshaling payload: %w", err)
 		}
 
-		if p.NodeDef.Tier == nil {
-			tmp := "c-micro"
-			p.NodeDef.Tier = &tmp
+		if p.NodeDef.Tier == "" {
+			p.NodeDef.Tier = "c-mirco"
 		}
 
-		if err := r.tryReserve(*p.NodeDef.Tier); err != nil {
+		if err := r.tryReserve(p.NodeDef.Tier); err != nil {
 			return err
 		}
-		defer r.tryRelease(*p.NodeDef.Tier)
+		defer r.tryRelease(p.NodeDef.Tier)
 
-		res, err := r.workerResourceManger.GenerateContainerResource(*p.NodeDef.Tier)
+		res, err := r.workerResourceManger.GenerateContainerResource(p.NodeDef.Tier)
 		if err != nil {
 			return err
 		}
@@ -189,8 +188,8 @@ func (r *RedisSync) EnqueueExecuteNode(payload NodeExecutePayload) error {
 	}
 
 	queue := "worker"
-	if payload.NodeDef.Tier != nil {
-		queue = *payload.NodeDef.Tier
+	if payload.NodeDef.Tier == "" {
+		queue = payload.NodeDef.Tier
 	}
 
 	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue(queue))

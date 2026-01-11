@@ -22,6 +22,8 @@ type NodeExecutePayload struct {
 	Node       models.Node
 	InputURLs  map[string]string
 	OutputURLs map[string]string
+
+	TraceParent string
 }
 
 type FlowStepHandler func(ctx context.Context, payload FlowStepPayload) error
@@ -34,8 +36,11 @@ type NodeFinishedPayload struct {
 	RunID  string
 	NodeID string
 	Logs   []models.LogRecord
+
+	TraceParent string
 }
 
 type NodeErrorHandler func(ctx context.Context, payload NodeErrorPayload) error
 type NodeErrorPayload struct {
+	TraceParent string
 }

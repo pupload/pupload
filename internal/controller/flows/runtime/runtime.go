@@ -8,6 +8,7 @@ import (
 	"pupload/internal/models"
 	"pupload/internal/stores"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,8 @@ type RuntimeFlow struct {
 	stores map[string]models.Store
 
 	log *slog.Logger
+
+	TraceParent string
 }
 
 type RuntimeNode struct {
@@ -29,7 +32,7 @@ type RuntimeNode struct {
 	NodeDef models.NodeDef
 }
 
-func CreateRuntimeFlow(flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow, error) {
+func CreateRuntimeFlow(ctx context.Context, flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow, error) {
 	// Unmarshal Stores
 
 	runtimeFlow := RuntimeFlow{
@@ -38,6 +41,8 @@ func CreateRuntimeFlow(flow models.Flow, nodeDefs []models.NodeDef) (RuntimeFlow
 
 		stores: make(map[string]models.Store),
 		nodes:  make(map[string]RuntimeNode),
+
+		TraceParent: telemetry.InjectContext(ctx),
 	}
 
 	runtimeFlow.constructLogger()

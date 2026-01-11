@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"pupload/internal/models"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 	"time"
 )
 
-func (rt *RuntimeFlow) handleExecuteNode(nodeID string, s syncplane.SyncLayer) error {
+func (rt *RuntimeFlow) handleExecuteNode(ctx context.Context, nodeID string, s syncplane.SyncLayer) error {
 	node := rt.nodes[nodeID]
 	inputs := make(map[string]string)
 
@@ -55,7 +56,7 @@ func (rt *RuntimeFlow) handleExecuteNode(nodeID string, s syncplane.SyncLayer) e
 		rt.FlowRun.WaitingURLs = append(rt.FlowRun.WaitingURLs, WaitingURL)
 	}
 
-	err := node.executeNode(s, rt.FlowRun.ID, inputs, outputs)
+	err := node.executeNode(ctx, s, rt.FlowRun.ID, inputs, outputs)
 	if err != nil {
 		return nil
 	}
@@ -105,13 +106,15 @@ func (rt *RuntimeFlow) HandleNodeFinished(nodeID string, logs []models.LogRecord
 	return nil
 }
 
-func (rn *RuntimeNode) executeNode(s syncplane.SyncLayer, runID string, input, output map[string]string) error {
+func (rn *RuntimeNode) executeNode(ctx context.Context, s syncplane.SyncLayer, runID string, input, output map[string]string) error {
 	payload := syncplane.NodeExecutePayload{
 		RunID:      runID,
 		Node:       *rn.Node,
 		NodeDef:    rn.NodeDef,
 		InputURLs:  input,
 		OutputURLs: output,
+
+		TraceParent: telemetry.InjectContext(ctx),
 	}
 
 	return s.EnqueueExecuteNode(payload)

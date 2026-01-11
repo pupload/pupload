@@ -1,17 +1,20 @@
 package service
 
 import (
+	"context"
 	"log/slog"
 	"pupload/internal/controller/flows/repo"
 	runtime_repo "pupload/internal/controller/flows/repo/runtime"
 	"pupload/internal/controller/flows/runtime"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 	"pupload/internal/validation"
 
 	"pupload/internal/logging"
 	"pupload/internal/models"
 
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type FlowService struct {
@@ -50,7 +53,9 @@ func (f *FlowService) Close() {
 }
 
 func (f *FlowService) RunFlow(flow models.Flow, nodeDefs []models.NodeDef) (models.FlowRun, error) {
-	// err := f.ValidateFlow(&flow)
+
+	ctx, span := telemetry.Tracer("pupload.controller").Start(context.Background(), "RunFlow")
+	defer span.End()
 
 	flow.Normalize()
 
@@ -59,10 +64,12 @@ func (f *FlowService) RunFlow(flow models.Flow, nodeDefs []models.NodeDef) (mode
 		return models.FlowRun{}, err
 	}
 
-	runtime, err := runtime.CreateRuntimeFlow(flow, nodeDefs)
+	runtime, err := runtime.CreateRuntimeFlow(ctx, flow, nodeDefs)
 	if err != nil {
 		return models.FlowRun{}, err
 	}
+
+	span.SetAttributes(attribute.String("run_id", runtime.FlowRun.ID))
 
 	runtime.Start(f.syncLayer)
 	f.runtimeRepo.SaveRuntime(runtime)

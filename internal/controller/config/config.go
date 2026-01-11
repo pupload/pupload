@@ -6,12 +6,14 @@ import (
 	"os"
 	"path/filepath"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
 type ControllerConfig struct {
 	SyncLayer syncplane.SyncPlaneSettings
+	Telemetry telemetry.TelemetrySettings
 
 	Storage struct {
 		DataPath string

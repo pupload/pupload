@@ -7,17 +7,27 @@ import (
 	"pupload/internal/logging"
 	"pupload/internal/models"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 	"strings"
 
 	cont "pupload/internal/worker/container"
 
 	"github.com/moby/moby/api/types/container"
+	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
 
 func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExecutePayload, resource container.Resources) error {
 
 	l := logging.LoggerFromCtx(ctx)
+	ctx, span := telemetry.Tracer("pupload.worker").Start(ctx, "NodeExecute")
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("node_id", payload.Node.ID),
+		attribute.String("container_image", payload.NodeDef.Image),
+		attribute.String("tier", payload.NodeDef.Tier),
+	)
+	l.With("span_id", span.SpanContext().SpanID().String())
 
 	// handle worker capabiliites
 
@@ -48,6 +58,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 
 	l.With("container_id", containerID)
 	l.Info("container created")
+	span.AddEvent("container created")
 
 	defer n.CS.RT.RemoveContainer(ctx, containerID)
 
@@ -62,6 +73,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 	}
 
 	l.Info("container started")
+	span.AddEvent("container started")
 
 	res, err := n.CS.RT.WaitContainer(ctx, containerID)
 	if err != nil {
@@ -73,6 +85,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 		"exit_message", res.Error,
 	)
 	l.Info("container finished")
+	span.AddEvent("container finished")
 
 	logs, err := n.CS.RT.GetLogs(ctx, containerID)
 	if err != nil {

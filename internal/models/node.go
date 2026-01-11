@@ -9,7 +9,7 @@ type NodeDef struct {
 	Outputs   []NodeEdgeDef
 	Flags     []NodeFlagDef
 	Command   NodeCommandDef
-	Tier      *string
+	Tier      string
 }
 
 type NodeFlagDef struct {

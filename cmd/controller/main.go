@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	config "pupload/internal/controller/config"
@@ -8,6 +9,7 @@ import (
 	controllerserver "pupload/internal/controller/server"
 	"pupload/internal/logging"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -35,6 +37,19 @@ func main() {
 
 		ControllerStepInterval: "@every 10s",
 	}
+
+	test_tel_config := telemetry.TelemetrySettings{
+		Enabled:    true,
+		Exporter:   telemetry.ExporterOTLP,
+		Endpoint:   "localhost:4317",
+		Insecure:   true,
+		SampleRate: 1.0,
+	}
+
+	if err := telemetry.Init(test_tel_config, "pupload.controller"); err != nil {
+
+	}
+	defer telemetry.Shutdown(context.Background())
 
 	s, err := syncplane.CreateControllerSyncLayer(test_sync_config)
 	if err != nil {

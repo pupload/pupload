@@ -1,13 +1,19 @@
 package runtime
 
 import (
+	"context"
 	"pupload/internal/models"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 )
 
 func (rt *RuntimeFlow) Step(s syncplane.SyncLayer) {
-	for {
+	ctx := telemetry.ExtractContext(context.Background(), rt.TraceParent)
+	ctx, span := telemetry.Tracer("pupload.controller").Start(ctx, "Step")
 
+	defer span.End()
+
+	for {
 		rt.log.Info("stepFlow state", "runID", rt.FlowRun.ID, "state", rt.FlowRun.Status)
 
 		if rt.IsComplete() {
@@ -31,7 +37,7 @@ func (rt *RuntimeFlow) Step(s syncplane.SyncLayer) {
 
 		case models.FLOWRUN_RUNNING:
 			for _, nodeID := range rt.nodesReady() {
-				if err := rt.handleExecuteNode(nodeID, s); err != nil {
+				if err := rt.handleExecuteNode(ctx, nodeID, s); err != nil {
 					rt.log.Error("error executing node", "err", err, "node_id", nodeID)
 					rt.FlowRun.Status = models.FLOWRUN_ERROR
 					return

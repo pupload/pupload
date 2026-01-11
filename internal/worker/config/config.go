@@ -3,11 +3,13 @@ package config
 import (
 	"pupload/internal/resources"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 )
 
 type WorkerConfig struct {
 	Worker    WorkerSettings
 	SyncPlane syncplane.SyncPlaneSettings
+	Telemetry telemetry.TelemetrySettings
 	Resources resources.ResourceSettings
 	Runtime   RuntimeSettings
 

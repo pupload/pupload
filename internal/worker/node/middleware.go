@@ -7,11 +7,14 @@ import (
 	"pupload/internal/logging"
 	"pupload/internal/models"
 	"pupload/internal/syncplane"
+	"pupload/internal/telemetry"
 
 	"github.com/moby/moby/api/types/container"
 )
 
 func (ns *NodeService) FinishedMiddleware(ctx context.Context, payload syncplane.NodeExecutePayload, resource container.Resources) error {
+
+	ctx = telemetry.ExtractContext(ctx, payload.TraceParent)
 
 	logs := make([]models.LogRecord, 0, 64)
 	ch := &logging.CollectHandler{
