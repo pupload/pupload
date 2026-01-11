@@ -191,9 +191,7 @@ func (rm *ResourceManager) GetValidTierMap() map[string]int {
 	validTiers := make(map[string]int)
 
 	validMem := rm.MaxMemoryMB - MemoryMB(rm.currMemMB)
-	fmt.Println(validMem)
 	validStorage := rm.MaxStorageMB - StorageMB(rm.currStorageMB)
-	fmt.Println(validStorage)
 
 	i := 2
 	for name, resource := range StandardTierMap {

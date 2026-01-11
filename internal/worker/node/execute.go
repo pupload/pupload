@@ -78,7 +78,8 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 	if err != nil {
 		return err
 	}
-	l.Info("container logs", "logs", logs)
+
+	l.Debug("container logs", "logs", logs)
 
 	if res.ExitCode != 0 {
 		return fmt.Errorf("contained exited with non-0 exit code")
