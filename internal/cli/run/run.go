@@ -49,6 +49,15 @@ func RunDev(projectRoot string) error {
 			WorkingDir: projectRoot,
 		},
 	}
+	controller_cfg.RuntimeRepo = repo.RuntimeRepoSettings{
+		Type: repo.RedisRuntimeRepo,
+
+		Redis: repo.RedisSettings{
+			Address:  s.Addr(),
+			Password: "",
+			DB:       0,
+		},
+	}
 
 	worker_cfg := workerconfig.DefaultConfig()
 	worker_cfg.SyncPlane = syncplane
@@ -97,6 +106,16 @@ func RunDevSilent(projectRoot string) error {
 
 		SingleProjectFS: repo.SingleProjectFSSettings{
 			WorkingDir: projectRoot,
+		},
+	}
+
+	controller_cfg.RuntimeRepo = repo.RuntimeRepoSettings{
+		Type: repo.RedisRuntimeRepo,
+
+		Redis: repo.RedisSettings{
+			Address:  s.Addr(),
+			Password: "",
+			DB:       0,
 		},
 	}
 
