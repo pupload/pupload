@@ -5,13 +5,10 @@ type Flow struct {
 
 	Stores []StoreInput
 
-	DefaultStore *string
-
 	DefaultDataWell *DataWell
 
-	DataWells      []DataWell
-	AvailableNodes []string
-	Nodes          []Node
+	DataWells []DataWell
+	Nodes     []Node
 }
 
 func (f *Flow) Normalize() {

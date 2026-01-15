@@ -19,7 +19,7 @@ func newTestFlow(t *testing.T, options ...func(*models.Flow)) models.Flow {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge1"}},
 			},
@@ -223,7 +223,7 @@ func TestValidateFlow_NodeDefNotFound(t *testing.T) {
 		f.Nodes = []models.Node{
 			{
 				ID:      "node1",
-				DefName: "nonexistent-def",
+				Uses:    "nonexistent-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge1"}},
 			},
 		}
@@ -248,9 +248,9 @@ func TestValidateFlow_InvalidEdge_NonexistentSourceNode(t *testing.T) {
 	flow := newTestFlow(t, func(f *models.Flow) {
 		f.Nodes = []models.Node{
 			{
-				ID:      "node1",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "edge-from-nowhere"}},
+				ID:     "node1",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "edge-from-nowhere"}},
 			},
 		}
 	})
@@ -272,7 +272,7 @@ func TestValidateFlow_InvalidEdge_NonexistentTargetNode(t *testing.T) {
 		f.Nodes = []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge-to-nowhere"}},
 			},
 		}
@@ -294,19 +294,19 @@ func TestValidateFlow_CycleDetection(t *testing.T) {
 		f.Nodes = []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "edge-C-A"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge-A-B"}},
 			},
 			{
 				ID:      "B",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "edge-A-B"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge-B-C"}},
 			},
 			{
 				ID:      "C",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "edge-B-C"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge-C-A"}},
 			},
@@ -329,7 +329,7 @@ func TestValidateFlow_SelfReferenceCycle(t *testing.T) {
 		f.Nodes = []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "self-loop"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "self-loop"}},
 			},
@@ -353,7 +353,7 @@ func TestValidateFlow_InvalidStoreReference(t *testing.T) {
 		f.Nodes = []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge1", Store: ptr("nonexistent-store")}},
 			},
 		}
@@ -441,7 +441,7 @@ func TestGenerateEdgeCount_SingleNode(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "input-edge"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "output-edge"}},
 			},
@@ -463,13 +463,13 @@ func TestGenerateEdgeCount_MultipleNodesSharedEdges(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "shared-edge"}},
 			},
 			{
-				ID:      "node2",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "shared-edge"}},
+				ID:     "node2",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "shared-edge"}},
 			},
 		},
 	}
@@ -486,7 +486,7 @@ func TestGenerateEdgeCount_NodeWithOnlyOutputs(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "edge1"}},
 			},
@@ -508,8 +508,8 @@ func TestTypeCheckFlow_NodeDefNotFound(t *testing.T) {
 		Name: "test-flow",
 		Nodes: []models.Node{
 			{
-				ID:      "node1",
-				DefName: "nonexistent-def",
+				ID:   "node1",
+				Uses: "nonexistent-def",
 			},
 		},
 	}
@@ -531,13 +531,13 @@ func TestTypeCheckFlow_ValidTypeMatch(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "producer",
+				Uses:    "producer",
 				Outputs: []models.NodeEdge{{Name: "output", Edge: "shared-edge"}},
 			},
 			{
-				ID:      "node2",
-				DefName: "consumer",
-				Inputs:  []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
+				ID:     "node2",
+				Uses:   "consumer",
+				Inputs: []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
 			},
 		},
 	}
@@ -572,13 +572,13 @@ func TestTypeCheckFlow_TypeMismatch(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "producer",
+				Uses:    "producer",
 				Outputs: []models.NodeEdge{{Name: "output", Edge: "shared-edge"}},
 			},
 			{
-				ID:      "node2",
-				DefName: "consumer",
-				Inputs:  []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
+				ID:     "node2",
+				Uses:   "consumer",
+				Inputs: []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
 			},
 		},
 	}
@@ -613,13 +613,13 @@ func TestTypeCheckFlow_WildcardTypeMatch(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "producer",
+				Uses:    "producer",
 				Outputs: []models.NodeEdge{{Name: "output", Edge: "shared-edge"}},
 			},
 			{
-				ID:      "node2",
-				DefName: "consumer",
-				Inputs:  []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
+				ID:     "node2",
+				Uses:   "consumer",
+				Inputs: []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
 			},
 		},
 	}
@@ -654,13 +654,13 @@ func TestTypeCheckFlow_MultipleCompatibleTypes(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "producer",
+				Uses:    "producer",
 				Outputs: []models.NodeEdge{{Name: "output", Edge: "shared-edge"}},
 			},
 			{
-				ID:      "node2",
-				DefName: "consumer",
-				Inputs:  []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
+				ID:     "node2",
+				Uses:   "consumer",
+				Inputs: []models.NodeEdge{{Name: "input", Edge: "shared-edge"}},
 			},
 		},
 	}
@@ -710,7 +710,7 @@ func TestTypeCheckFlow_NodeWithNoConnections(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "node1",
-				DefName: "standalone",
+				Uses:    "standalone",
 				Inputs:  []models.NodeEdge{},
 				Outputs: []models.NodeEdge{},
 			},
@@ -757,19 +757,19 @@ func TestIsFlowDAG_LinearFlow(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-B"}},
 			},
 			{
 				ID:      "B",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "B-C"}},
 			},
 			{
-				ID:      "C",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "B-C"}},
+				ID:     "C",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "B-C"}},
 			},
 		},
 	}
@@ -787,25 +787,25 @@ func TestIsFlowDAG_DiamondPattern(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out1", Edge: "A-B"}, {Name: "out2", Edge: "A-C"}},
 			},
 			{
 				ID:      "B",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "B-D"}},
 			},
 			{
 				ID:      "C",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-C"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "C-D"}},
 			},
 			{
-				ID:      "D",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in1", Edge: "B-D"}, {Name: "in2", Edge: "C-D"}},
+				ID:     "D",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in1", Edge: "B-D"}, {Name: "in2", Edge: "C-D"}},
 			},
 		},
 	}
@@ -823,13 +823,13 @@ func TestIsFlowDAG_SimpleCycle(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "B-A"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-B"}},
 			},
 			{
 				ID:      "B",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "B-A"}},
 			},
@@ -849,19 +849,19 @@ func TestIsFlowDAG_ComplexCycle(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "C-A"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-B"}},
 			},
 			{
 				ID:      "B",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "B-C"}},
 			},
 			{
 				ID:      "C",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "B-C"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "C-A"}},
 			},
@@ -881,7 +881,7 @@ func TestIsFlowDAG_SelfReference(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-A"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-A"}},
 			},
@@ -901,23 +901,23 @@ func TestIsFlowDAG_DisconnectedSubgraphs(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-B"}},
 			},
 			{
-				ID:      "B",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
+				ID:     "B",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 			},
 			{
 				ID:      "C",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "C-D"}},
 			},
 			{
-				ID:      "D",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "C-D"}},
+				ID:     "D",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "C-D"}},
 			},
 		},
 	}
@@ -935,23 +935,23 @@ func TestIsFlowDAG_DisconnectedWithCycle(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "A-B"}},
 			},
 			{
-				ID:      "B",
-				DefName: "test-def",
-				Inputs:  []models.NodeEdge{{Name: "in", Edge: "A-B"}},
+				ID:     "B",
+				Uses:   "test-def",
+				Inputs: []models.NodeEdge{{Name: "in", Edge: "A-B"}},
 			},
 			{
 				ID:      "C",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "D-C"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "C-D"}},
 			},
 			{
 				ID:      "D",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{{Name: "in", Edge: "C-D"}},
 				Outputs: []models.NodeEdge{{Name: "out", Edge: "D-C"}},
 			},
@@ -971,7 +971,7 @@ func TestIsFlowDAG_SingleNodeNoEdges(t *testing.T) {
 		Nodes: []models.Node{
 			{
 				ID:      "A",
-				DefName: "test-def",
+				Uses:    "test-def",
 				Inputs:  []models.NodeEdge{},
 				Outputs: []models.NodeEdge{},
 			},

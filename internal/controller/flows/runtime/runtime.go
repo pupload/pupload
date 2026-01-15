@@ -97,7 +97,7 @@ func (rt *RuntimeFlow) createFlowRun() {
 func (rt *RuntimeFlow) constructRuntimeNode() error {
 	for _, node := range rt.Flow.Nodes {
 		found := false
-		defName := node.DefName
+		defName := node.Uses
 
 		for _, def := range rt.NodeDefs {
 			if defName == fmt.Sprintf("%s/%s", def.Publisher, def.Name) {

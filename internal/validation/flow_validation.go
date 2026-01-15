@@ -63,7 +63,7 @@ func typeCheckFlow(flow models.Flow, nodeDefs []models.NodeDef) error {
 		var def *models.NodeDef
 
 		for _, d := range nodeDefs {
-			if d.Name == node.DefName {
+			if d.Name == node.Uses {
 				def = &d
 			}
 		}

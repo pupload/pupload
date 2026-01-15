@@ -34,7 +34,7 @@ type NodeCommandDef struct {
 
 type Node struct {
 	ID      string
-	DefName string
+	Uses    string
 	Inputs  []NodeEdge
 	Outputs []NodeEdge
 	Flags   []NodeFlag
