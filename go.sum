@@ -63,8 +63,8 @@ github.com/containerd/errdefs v1.0.0/go.mod h1:+YBYIdtsnF4Iw6nWZhJcqGSg/dwvV7tyJ
 github.com/containerd/errdefs/pkg v0.3.0 h1:9IKJ06FvyNlexW690DXuQNx2KA2cUJXx151Xdx3ZPPE=
 github.com/containerd/errdefs/pkg v0.3.0/go.mod h1:NJw6s9HwNuRhnjJhM7pylWwMyAkmCQvQ4GpJHEqRLVk=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
-github.com/cusianovic/asynq v0.25.1-dynamic-queues h1:cFUjKJsatPmLYtELIvZMKMzekZsjO8DADK3fp939YVc=
-github.com/cusianovic/asynq v0.25.1-dynamic-queues/go.mod h1:pazWNOLBu0FEynQRBvHA26qdIKRSmfdIfUm4HdsLmXg=
+github.com/cusianovic/asynq v0.25.3 h1:/aXJouU57uBNhknn7xELqEvaMQblQ6O+tV9KIy99aTo=
+github.com/cusianovic/asynq v0.25.3/go.mod h1:/E9T+jD8L1Ql4zMfR8VzUJ720RipYB9eznMrMS7rfPs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=

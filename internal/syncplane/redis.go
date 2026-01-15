@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cusianovic/asynq"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
 )
 
