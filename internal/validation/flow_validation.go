@@ -3,9 +3,10 @@ package validation
 import (
 	"errors"
 	"fmt"
-	mimetypes "pupload/internal/mimetype"
-	"pupload/internal/models"
 	"slices"
+
+	mimetypes "github.com/pupload/pupload/internal/mimetype"
+	"github.com/pupload/pupload/internal/models"
 )
 
 func ValidateFlow(flow models.Flow, nodeDefs []models.NodeDef) error {

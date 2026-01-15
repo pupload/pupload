@@ -2,8 +2,9 @@ package mimetypes
 
 import (
 	"fmt"
-	"pupload/internal/models"
 	"strings"
+
+	"github.com/pupload/pupload/internal/models"
 )
 
 type MimeSet struct {

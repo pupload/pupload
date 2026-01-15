@@ -1,8 +1,9 @@
 package validation
 
 import (
-	"pupload/internal/models"
 	"testing"
+
+	"github.com/pupload/pupload/internal/models"
 )
 
 // Helper function to create string pointers

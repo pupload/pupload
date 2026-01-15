@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"pupload/internal/controller"
+
+	"github.com/pupload/pupload/internal/controller"
 )
 
 func main() {

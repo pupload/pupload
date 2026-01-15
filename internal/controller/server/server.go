@@ -2,11 +2,12 @@ package controllerserver
 
 import (
 	"net/http"
-	v1 "pupload/internal/controller/api/v1"
-	config "pupload/internal/controller/config"
-	flows "pupload/internal/controller/flows/service"
-	"pupload/internal/logging"
 	"time"
+
+	v1 "github.com/pupload/pupload/internal/controller/api/v1"
+	config "github.com/pupload/pupload/internal/controller/config"
+	flows "github.com/pupload/pupload/internal/controller/flows/service"
+	"github.com/pupload/pupload/internal/logging"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"pupload/internal/logging"
-	"pupload/internal/models"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
 	"strings"
 
-	cont "pupload/internal/worker/container"
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
+
+	cont "github.com/pupload/pupload/internal/worker/container"
 
 	"github.com/moby/moby/api/types/container"
 	"go.opentelemetry.io/otel/attribute"

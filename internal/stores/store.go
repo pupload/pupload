@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"pupload/internal/models"
-	locals3 "pupload/internal/stores/local_s3"
-	"pupload/internal/stores/s3"
-	s3fs "pupload/internal/stores/s3_fs"
+
+	"github.com/pupload/pupload/internal/models"
+	locals3 "github.com/pupload/pupload/internal/stores/local_s3"
+	"github.com/pupload/pupload/internal/stores/s3"
+	s3fs "github.com/pupload/pupload/internal/stores/s3_fs"
 )
 
 func UnmarshalStore(input models.StoreInput) (models.Store, error) {

@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"pupload/internal/worker"
+
+	"github.com/pupload/pupload/internal/worker"
 )
 
 func main() {

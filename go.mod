@@ -1,4 +1,4 @@
-module pupload
+module github.com/pupload/pupload
 
 go 1.25.3
 

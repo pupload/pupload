@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"pupload/internal/logging"
-	"pupload/internal/models"
-	"pupload/internal/stores"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
 	"time"
+
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/stores"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 
 	"github.com/google/uuid"
 )

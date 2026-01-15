@@ -2,8 +2,9 @@ package repo
 
 import (
 	"fmt"
-	"pupload/internal/controller/flows/repo/project"
-	runtime_repo "pupload/internal/controller/flows/repo/runtime"
+
+	"github.com/pupload/pupload/internal/controller/flows/repo/project"
+	runtime_repo "github.com/pupload/pupload/internal/controller/flows/repo/runtime"
 
 	"github.com/redis/go-redis/v9"
 )

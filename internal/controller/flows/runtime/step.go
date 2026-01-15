@@ -2,9 +2,10 @@ package runtime
 
 import (
 	"context"
-	"pupload/internal/models"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
+
+	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 )
 
 func (rt *RuntimeFlow) Step(s syncplane.SyncLayer) {

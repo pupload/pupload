@@ -5,12 +5,13 @@ import (
 	"io"
 	"log"
 	"log/slog"
-	"pupload/internal/logging"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
-	"pupload/internal/worker/config"
-	"pupload/internal/worker/container"
-	"pupload/internal/worker/server"
+
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
+	"github.com/pupload/pupload/internal/worker/config"
+	"github.com/pupload/pupload/internal/worker/container"
+	"github.com/pupload/pupload/internal/worker/server"
 )
 
 func Run() error {

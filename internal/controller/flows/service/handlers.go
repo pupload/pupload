@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"pupload/internal/syncplane"
 	"time"
+
+	"github.com/pupload/pupload/internal/syncplane"
 )
 
 func (f *FlowService) FlowStepHandler(ctx context.Context, payload syncplane.FlowStepPayload) error {

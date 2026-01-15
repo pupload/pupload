@@ -6,7 +6,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"pupload/internal/models"
+
+	"github.com/pupload/pupload/internal/models"
 
 	"go.yaml.in/yaml/v2"
 )

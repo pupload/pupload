@@ -3,15 +3,16 @@ package service
 import (
 	"context"
 	"log/slog"
-	"pupload/internal/controller/config"
-	"pupload/internal/controller/flows/repo"
-	"pupload/internal/controller/flows/runtime"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
-	"pupload/internal/validation"
 
-	"pupload/internal/logging"
-	"pupload/internal/models"
+	"github.com/pupload/pupload/internal/controller/config"
+	"github.com/pupload/pupload/internal/controller/flows/repo"
+	"github.com/pupload/pupload/internal/controller/flows/runtime"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
+	"github.com/pupload/pupload/internal/validation"
+
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/models"
 
 	"go.opentelemetry.io/otel/attribute"
 )

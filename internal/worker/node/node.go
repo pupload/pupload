@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
-	mimetypes "pupload/internal/mimetype"
-	"pupload/internal/models"
-	"pupload/internal/syncplane"
-	"pupload/internal/worker/container"
 	"slices"
+
+	mimetypes "github.com/pupload/pupload/internal/mimetype"
+	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/worker/container"
 
 	"github.com/google/uuid"
 )

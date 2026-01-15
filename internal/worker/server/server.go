@@ -1,9 +1,9 @@
 package server
 
 import (
-	"pupload/internal/syncplane"
-	"pupload/internal/worker/container"
-	"pupload/internal/worker/node"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/worker/container"
+	"github.com/pupload/pupload/internal/worker/node"
 )
 
 func NewWorkerServer(s syncplane.SyncLayer, cs *container.ContainerService) {

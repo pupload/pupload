@@ -6,13 +6,14 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
-	"pupload/internal/controller/config"
-	flow "pupload/internal/controller/flows/service"
-	controllerserver "pupload/internal/controller/server"
-	"pupload/internal/logging"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
 	"time"
+
+	"github.com/pupload/pupload/internal/controller/config"
+	flow "github.com/pupload/pupload/internal/controller/flows/service"
+	controllerserver "github.com/pupload/pupload/internal/controller/server"
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 )
 
 func RunWithConfig(ctx context.Context, cfg *config.ControllerSettings) error {

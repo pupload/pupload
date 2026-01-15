@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"pupload/internal/cli/project"
-	"pupload/internal/cli/run"
-	"pupload/internal/cli/ui"
+
+	"github.com/pupload/pupload/internal/cli/project"
+	"github.com/pupload/pupload/internal/cli/run"
+	"github.com/pupload/pupload/internal/cli/ui"
 
 	"github.com/spf13/cobra"
 )

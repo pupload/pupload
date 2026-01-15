@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"pupload/internal/models"
 	"strings"
 	"time"
+
+	"github.com/pupload/pupload/internal/models"
 
 	filepicker "github.com/charmbracelet/bubbles/filepicker"
 	tea "github.com/charmbracelet/bubbletea"

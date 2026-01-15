@@ -3,7 +3,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 */
 package main
 
-import "pupload/cmd/pup/cmd"
+import "github.com/pupload/pupload/cmd/pup/cmd"
 
 func main() {
 	cmd.Execute()

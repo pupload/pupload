@@ -2,8 +2,9 @@ package repo
 
 import (
 	"context"
-	"pupload/internal/controller/flows/runtime"
-	"pupload/internal/models"
+
+	"github.com/pupload/pupload/internal/controller/flows/runtime"
+	"github.com/pupload/pupload/internal/models"
 )
 
 type ProjectRepo interface {

@@ -2,7 +2,8 @@ package syncplane
 
 import (
 	"fmt"
-	"pupload/internal/resources"
+
+	"github.com/pupload/pupload/internal/resources"
 )
 
 func CreateControllerSyncLayer(cfg SyncPlaneSettings) (SyncLayer, error) {

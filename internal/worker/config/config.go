@@ -1,9 +1,9 @@
 package config
 
 import (
-	"pupload/internal/resources"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
+	"github.com/pupload/pupload/internal/resources"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 )
 
 type WorkerConfig struct {

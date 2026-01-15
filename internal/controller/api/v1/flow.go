@@ -3,9 +3,10 @@ package v1
 import (
 	"fmt"
 	"net/http"
-	flows "pupload/internal/controller/flows/service"
-	"pupload/internal/logging"
-	"pupload/internal/models"
+
+	flows "github.com/pupload/pupload/internal/controller/flows/service"
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/models"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"

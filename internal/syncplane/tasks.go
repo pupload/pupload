@@ -2,7 +2,8 @@ package syncplane
 
 import (
 	"context"
-	"pupload/internal/models"
+
+	"github.com/pupload/pupload/internal/models"
 
 	"github.com/moby/moby/api/types/container"
 )

@@ -15,7 +15,7 @@ Stores:
 DefaultStore: FileStore
 
 AvailableNodes:
-  - pupload/ffmpeg
+  - github.com/pupload/pupload/ffmpeg
 
 DataWells:
   - Store: FileStore
@@ -25,7 +25,7 @@ DataWells:
 
 Nodes:
   - ID: 0
-    DefName: pupload/ffmpeg
+    DefName: github.com/pupload/pupload/ffmpeg
     Inputs:
       - Name: VideoStream
         Edge: teststore_input

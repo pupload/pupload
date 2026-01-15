@@ -5,8 +5,9 @@ package cmd
 
 import (
 	"fmt"
-	"pupload/internal/cli/project"
-	"pupload/internal/cli/run"
+
+	"github.com/pupload/pupload/internal/cli/project"
+	"github.com/pupload/pupload/internal/cli/run"
 
 	"github.com/spf13/cobra"
 )

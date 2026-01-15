@@ -3,10 +3,11 @@ package node
 import (
 	"context"
 	"log/slog"
-	"pupload/internal/logging"
-	"pupload/internal/models"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
+
+	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 
 	"github.com/moby/moby/api/types/container"
 )

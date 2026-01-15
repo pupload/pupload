@@ -9,7 +9,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"pupload/internal/models"
+
+	"github.com/pupload/pupload/internal/models"
 
 	"sigs.k8s.io/yaml"
 )

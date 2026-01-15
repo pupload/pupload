@@ -3,9 +3,10 @@ package config
 import (
 	_ "embed"
 	"os"
-	"pupload/internal/controller/flows/repo"
-	"pupload/internal/syncplane"
-	"pupload/internal/telemetry"
+
+	"github.com/pupload/pupload/internal/controller/flows/repo"
+	"github.com/pupload/pupload/internal/syncplane"
+	"github.com/pupload/pupload/internal/telemetry"
 )
 
 type ControllerSettings struct {

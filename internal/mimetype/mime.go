@@ -4,8 +4,9 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
-	"pupload/internal/models"
 	"strings"
+
+	"github.com/pupload/pupload/internal/models"
 )
 
 type MimeDBRow struct {

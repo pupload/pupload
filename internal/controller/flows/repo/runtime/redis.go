@@ -5,7 +5,8 @@ import (
 	"context"
 	"encoding/gob"
 	"fmt"
-	"pupload/internal/controller/flows/runtime"
+
+	"github.com/pupload/pupload/internal/controller/flows/runtime"
 
 	"github.com/redis/go-redis/v9"
 )

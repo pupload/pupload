@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"pupload/internal/resources"
 	"sync"
 	"time"
+
+	"github.com/pupload/pupload/internal/resources"
 
 	"github.com/cusianovic/asynq"
 	"github.com/go-redsync/redsync/v4"

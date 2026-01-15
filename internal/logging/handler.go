@@ -3,7 +3,8 @@ package logging
 import (
 	"context"
 	"log/slog"
-	"pupload/internal/models"
+
+	"github.com/pupload/pupload/internal/models"
 )
 
 type CollectHandler struct {
