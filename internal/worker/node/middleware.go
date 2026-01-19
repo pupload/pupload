@@ -50,6 +50,19 @@ func (ns *NodeService) FinishedMiddleware(ctx context.Context, payload syncplane
 		}); err != nil {
 
 		}
+	} else {
+		if enqueueErr := ns.SyncLayer.EnqueueNodeFailed(syncplane.NodeFailedPayload{
+			RunID:       payload.RunID,
+			NodeID:      payload.Node.ID,
+			Logs:        logs,
+			Attempt:     payload.Attempt,
+			MaxAttempts: payload.MaxAttempts,
+			Error:       err.Error(),
+			TraceParent: payload.TraceParent,
+		}); enqueueErr != nil {
+
+		}
+
 	}
 
 	if err != nil {

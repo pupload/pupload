@@ -97,7 +97,7 @@ func (rt *RuntimeFlow) makeOutputArtifact(edge models.NodeEdge) (*models.Artifac
 func (rt *RuntimeFlow) HandleNodeFinished(nodeID string, logs []models.LogRecord) error {
 	_, ok := rt.nodes[nodeID]
 	if !ok {
-		return fmt.Errorf("node does not exist")
+		return fmt.Errorf("HandleNodeFinished: node does not exist")
 	}
 
 	curr_state := rt.FlowRun.NodeState[nodeID]
@@ -107,6 +107,33 @@ func (rt *RuntimeFlow) HandleNodeFinished(nodeID string, logs []models.LogRecord
 	return nil
 }
 
+func (rt *RuntimeFlow) HandleNodeFailed(nodeID string, logs []models.LogRecord, err string, attempt, maxAttempt int, isFinal bool) error {
+	_, ok := rt.nodes[nodeID]
+	if !ok {
+		return fmt.Errorf("HandleNodeFailed: node does not exist")
+	}
+
+	curr_state := rt.FlowRun.NodeState[nodeID]
+	new_logs := append(curr_state.Logs, logs...)
+
+	status := models.NODERUN_RETRYING
+	if isFinal {
+		rt.FlowRun.Status = models.FLOWRUN_ERROR
+		status = models.NODERUN_ERROR
+	}
+
+	rt.FlowRun.NodeState[nodeID] = models.NodeState{
+		Status:      status,
+		Logs:        new_logs,
+		Error:       err,
+		Attempt:     attempt,
+		MaxAttempts: maxAttempt,
+	}
+
+	return nil
+
+}
+
 func (rn *RuntimeNode) executeNode(ctx context.Context, s syncplane.SyncLayer, runID string, input, output map[string]string) error {
 	payload := syncplane.NodeExecutePayload{
 		RunID:      runID,
@@ -114,6 +141,8 @@ func (rn *RuntimeNode) executeNode(ctx context.Context, s syncplane.SyncLayer, r
 		NodeDef:    rn.NodeDef,
 		InputURLs:  input,
 		OutputURLs: output,
+
+		MaxAttempts: rn.NodeDef.MaxAttempts,
 
 		TraceParent: telemetry.InjectContext(ctx),
 	}

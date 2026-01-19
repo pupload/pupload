@@ -10,7 +10,7 @@ const (
 	TypeFlowStep        = "flow:step"
 	TypeNodeExecute     = "node:execute"
 	TypeNodeFinished    = "node:finished"
-	TypeNodeError       = "node:error"
+	TypeNodeFailed      = "node:failed"
 	TypeControllerClean = "controller:clean"
 )
 
@@ -21,6 +21,9 @@ type NodeExecutePayload struct {
 	Node       models.Node
 	InputURLs  map[string]string
 	OutputURLs map[string]string
+
+	MaxAttempts int
+	Attempt     int
 
 	TraceParent string
 }
@@ -39,7 +42,14 @@ type NodeFinishedPayload struct {
 	TraceParent string
 }
 
-type NodeErrorHandler func(ctx context.Context, payload NodeErrorPayload) error
-type NodeErrorPayload struct {
+type NodeFailedHandler func(ctx context.Context, payload NodeFailedPayload) error
+type NodeFailedPayload struct {
+	RunID       string
+	NodeID      string
+	Attempt     int
+	MaxAttempts int
+	Error       string
+	Logs        []models.LogRecord
+
 	TraceParent string
 }

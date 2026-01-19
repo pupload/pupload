@@ -12,8 +12,8 @@ type SyncLayer interface {
 	RegisterNodeFinishedHandler(handler NodeFinishedHandler) error
 	EnqueueNodeFinished(payload NodeFinishedPayload) error
 
-	RegisterNodeErrorHandler(handler NodeErrorHandler) error
-	EnqueueNodeError(payload NodeErrorHandler) error
+	RegisterNodeFailedHandler(handler NodeFailedHandler) error
+	EnqueueNodeFailed(payload NodeFailedPayload) error
 
 	UpdateSubscribedQueues(queues map[string]int) error
 

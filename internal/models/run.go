@@ -26,11 +26,11 @@ const (
 )
 
 type NodeState struct {
-	Status     NodeRunStatus
-	Logs       []LogRecord
-	Error      string
-	RetryCount int
-	MaxRetries int
+	Status      NodeRunStatus
+	Logs        []LogRecord
+	Error       string
+	Attempt     int
+	MaxAttempts int
 }
 
 type Artifact struct {

@@ -143,6 +143,9 @@ func (r *RedisSync) RegisterExecuteNodeHandler(handler ExecuteNodeHandler) error
 			return fmt.Errorf("ExecuteNodeHandler: Error unmarshaling payload: %w", err)
 		}
 
+		attempt, _ := asynq.GetRetryCount(ctx)
+		p.Attempt = attempt + 1
+
 		if err := handler(ctx, p); err != nil {
 			return err
 		}
@@ -163,7 +166,7 @@ func (r *RedisSync) EnqueueExecuteNode(payload NodeExecutePayload) error {
 
 	r.log.Debug("enqueued node def", "tier", payload.NodeDef.Tier)
 
-	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue(queue))
+	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue(queue), asynq.MaxRetry(payload.MaxAttempts-1))
 	if _, err := r.asynqClient.Enqueue(task); err != nil {
 		return err
 	}
@@ -202,16 +205,16 @@ func (r *RedisSync) EnqueueNodeFinished(payload NodeFinishedPayload) error {
 	return nil
 }
 
-func (r *RedisSync) RegisterNodeErrorHandler(handler NodeErrorHandler) error {
+func (r *RedisSync) RegisterNodeFailedHandler(handler NodeFailedHandler) error {
 	if r.mux == nil {
 		return fmt.Errorf("cannot register handler: mux not initalized")
 	}
 
-	r.mux.HandleFunc(TypeNodeError, func(ctx context.Context, t *asynq.Task) error {
-		var p NodeErrorPayload
+	r.mux.HandleFunc(TypeNodeFailed, func(ctx context.Context, t *asynq.Task) error {
+		var p NodeFailedPayload
 		err := json.Unmarshal(t.Payload(), &p)
 		if err != nil {
-			return fmt.Errorf("RegisterExecuteNodeHandler: Error unmarshaling payload: %w", err)
+			return fmt.Errorf("RegisterNodeFailedHandler: Error unmarshaling payload: %w", err)
 		}
 		return handler(ctx, p)
 	})
@@ -219,13 +222,13 @@ func (r *RedisSync) RegisterNodeErrorHandler(handler NodeErrorHandler) error {
 	return nil
 }
 
-func (r *RedisSync) EnqueueNodeError(payload NodeErrorHandler) error {
+func (r *RedisSync) EnqueueNodeFailed(payload NodeFailedPayload) error {
 	p, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 
-	task := asynq.NewTask(TypeNodeError, p, asynq.Queue("controller"))
+	task := asynq.NewTask(TypeNodeFailed, p, asynq.Queue("controller"))
 	if _, err := r.asynqClient.Enqueue(task); err != nil {
 		return err
 	}

@@ -60,8 +60,12 @@ func (rt *RuntimeFlow) Step(s syncplane.SyncLayer) {
 	}
 }
 
+func (rt *RuntimeFlow) IsError() bool {
+	return rt.FlowRun.Status == models.FLOWRUN_ERROR
+}
+
 func (rt *RuntimeFlow) IsComplete() bool {
-	return len(rt.nodesLeft()) == 0
+	return rt.FlowRun.Status == models.FLOWRUN_COMPLETE || len(rt.nodesLeft()) == 0
 }
 
 func (rt *RuntimeFlow) nodesLeft() []string {

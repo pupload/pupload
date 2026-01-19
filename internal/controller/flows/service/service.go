@@ -50,7 +50,7 @@ func CreateFlowService(cfg *config.ControllerSettings, s syncplane.SyncLayer) (*
 
 	s.RegisterFlowStepHandler(f.FlowStepHandler)
 	s.RegisterNodeFinishedHandler(f.NodeFinishedHandler)
-	s.RegisterNodeErrorHandler(f.NodeErrorHandler)
+	s.RegisterNodeFailedHandler(f.NodeFailedHandler)
 
 	s.Start()
 
