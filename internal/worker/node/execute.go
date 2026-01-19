@@ -59,7 +59,7 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 
 	containerID, err := n.CS.RT.CreateContainer(ctx, cont.ContainerConfig{
 		Image: payload.NodeDef.Image,
-		Name:  "test2",
+		Name:  fmt.Sprintf("pupload-%s-%s", payload.RunID, payload.Node.ID),
 		Cmd:   command,
 
 		HostConfig: &container.HostConfig{

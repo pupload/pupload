@@ -40,7 +40,7 @@ to quickly create a Cobra application.`,
 			return err
 		}
 
-		if remote != "" {
+		if remote == "" {
 			go func() {
 				log.SetOutput(io.Discard)
 				run.RunDevSilent(root)
