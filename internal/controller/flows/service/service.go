@@ -68,6 +68,10 @@ func (f *FlowService) RunFlow(flow models.Flow, nodeDefs []models.NodeDef) (mode
 	defer span.End()
 
 	flow.Normalize()
+	for i := range nodeDefs {
+		nodeDefs[i].Normalize()
+		f.log.Info("node def tier", "node_def", nodeDefs[i].Name, "tier", nodeDefs[i].Tier)
+	}
 
 	if err := validation.ValidateFlow(flow, nodeDefs); err != nil {
 		f.log.Error("unable to validate flow", "err", err)

@@ -2,12 +2,14 @@ package resources
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
 
 	"github.com/jaypipes/ghw"
 	"github.com/moby/moby/api/types/container"
+	"github.com/pupload/pupload/internal/logging"
 	"github.com/shirou/gopsutil/v3/disk"
 )
 
@@ -20,6 +22,8 @@ type ResourceManager struct {
 	currStorageMB StorageMB
 
 	gpus []GPUInfo
+
+	log *slog.Logger
 }
 
 type GPUResources struct {
@@ -104,6 +108,8 @@ func CreateResourceManager(cfg ResourceSettings) (*ResourceManager, error) {
 		MaxStorageMB: sto,
 
 		gpus: gpus,
+
+		log: logging.ForService("resource-manager"),
 	}, nil
 }
 
@@ -208,6 +214,8 @@ func (rm *ResourceManager) GetValidTierMap() map[string]int {
 	}
 
 	validTiers["worker"] = 1
+
+	rm.log.Debug("currently allowed tiers", "tiers", validTiers)
 
 	return validTiers
 }

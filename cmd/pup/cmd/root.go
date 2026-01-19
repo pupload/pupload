@@ -4,7 +4,6 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,7 +14,7 @@ var rootCmd = &cobra.Command{
 	Use:   "pup",
 	Short: "Pupload is an upload orchistrator and runtime that grows with your needs.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("test")
+		cmd.Help()
 	},
 }
 

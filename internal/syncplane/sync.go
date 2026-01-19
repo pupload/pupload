@@ -15,6 +15,8 @@ type SyncLayer interface {
 	RegisterNodeErrorHandler(handler NodeErrorHandler) error
 	EnqueueNodeError(payload NodeErrorHandler) error
 
+	UpdateSubscribedQueues(queues map[string]int) error
+
 	RegisterFlowStepHandler(handler FlowStepHandler) error
 	StartScheduler(ctx context.Context)
 	StopScheduler(ctx context.Context)

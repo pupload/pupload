@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/pupload/pupload/internal/logging"
+	"github.com/pupload/pupload/internal/resources"
 	"github.com/pupload/pupload/internal/syncplane"
 	"github.com/pupload/pupload/internal/telemetry"
 	"github.com/pupload/pupload/internal/worker/config"
@@ -38,8 +39,15 @@ func RunWithConfig(ctx context.Context, cfg *config.WorkerConfig) error {
 		return err
 	}
 
+	log.Info("Worker starting up...")
 	cs := container.CreateContainerService()
-	server.NewWorkerServer(s, &cs)
+
+	rm, err := resources.CreateResourceManager(cfg.Resources)
+	if err != nil {
+		return err
+	}
+
+	server.NewWorkerServer(s, &cs, rm)
 
 	<-ctx.Done()
 
@@ -68,7 +76,13 @@ func RunWithConfigSilent(ctx context.Context, cfg *config.WorkerConfig) error {
 	}
 
 	cs := container.CreateContainerService()
-	server.NewWorkerServer(s, &cs)
+
+	rm, err := resources.CreateResourceManager(cfg.Resources)
+	if err != nil {
+		return err
+	}
+
+	server.NewWorkerServer(s, &cs, rm)
 
 	<-ctx.Done()
 

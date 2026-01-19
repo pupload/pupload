@@ -20,13 +20,17 @@ const (
 	NODERUN_IDLE     NodeRunStatus = "IDLE"
 	NODERUN_READY    NodeRunStatus = "READY"
 	NODERUN_RUNNING  NodeRunStatus = "RUNNING"
+	NODERUN_RETRYING NodeRunStatus = "RETRYING"
 	NODERUN_COMPLETE NodeRunStatus = "COMPLETE"
 	NODERUN_ERROR    NodeRunStatus = "ERROR"
 )
 
 type NodeState struct {
-	Status NodeRunStatus
-	Logs   []LogRecord
+	Status     NodeRunStatus
+	Logs       []LogRecord
+	Error      string
+	RetryCount int
+	MaxRetries int
 }
 
 type Artifact struct {

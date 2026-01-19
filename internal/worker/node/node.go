@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path"
 	"path/filepath"
-	"slices"
+	"sync"
 
 	mimetypes "github.com/pupload/pupload/internal/mimetype"
 	"github.com/pupload/pupload/internal/models"
+	"github.com/pupload/pupload/internal/resources"
 	"github.com/pupload/pupload/internal/syncplane"
 	"github.com/pupload/pupload/internal/worker/container"
 
@@ -17,20 +17,30 @@ import (
 )
 
 type NodeService struct {
-	SyncLayer syncplane.SyncLayer
-	CS        *container.ContainerService
+	SyncLayer      syncplane.SyncLayer
+	CS             *container.ContainerService
+	ResourceManger *resources.ResourceManager
+
+	mu sync.Mutex
 }
 
-func CreateNodeService(cs *container.ContainerService, s syncplane.SyncLayer) NodeService {
-	return NodeService{
-		CS:        cs,
-		SyncLayer: s,
+func CreateNodeService(cs *container.ContainerService, s syncplane.SyncLayer, rm *resources.ResourceManager) (NodeService, error) {
+
+	err := s.UpdateSubscribedQueues(rm.GetValidTierMap())
+	if err != nil {
+		return NodeService{}, err
 	}
+
+	return NodeService{
+		CS:             cs,
+		SyncLayer:      s,
+		ResourceManger: rm,
+	}, nil
 }
 
-func (ns NodeService) AddEnvFlagMap(m map[string]string, nodeDef models.NodeDef, node models.Node) error {
+func (ns *NodeService) addEnvFlagMap(m map[string]string, nodeDef models.NodeDef, node models.Node) error {
 
-	flags, err := ns.GetFlags(nodeDef, node)
+	flags, err := ns.getFlags(nodeDef, node)
 	if err != nil {
 		return err
 	}
@@ -41,23 +51,6 @@ func (ns NodeService) AddEnvFlagMap(m map[string]string, nodeDef models.NodeDef,
 	}
 
 	return nil
-}
-
-func (ns NodeService) GetFlagEnvArray(nodeDef models.NodeDef, node models.Node) ([]string, error) {
-
-	env := make([]string, 0)
-
-	flags, err := ns.GetFlags(nodeDef, node)
-	if err != nil {
-		return []string{}, err
-	}
-
-	// TODO: ensure this can't be escaped
-	for key, val := range flags {
-		env = append(env, key+"="+val)
-	}
-
-	return env, nil
 }
 
 type preparedIO struct {
@@ -88,12 +81,12 @@ func (ns *NodeService) prepareIO(inputs, outputs map[string]string, nodeDef mode
 			return nil, nil, fmt.Errorf("PrepareInputs: error creating mimeset: %w", err)
 		}
 
-		ext, err := ns.ValidateInput(inputURL, *typeSet)
+		ext, err := ns.validateInput(inputURL, *typeSet)
 		if err != nil {
 			return nil, nil, fmt.Errorf("PrepareInputs: error validating inputs: %w", err)
 		}
 
-		path, filename := ns.GetPath(basePath, ext)
+		path, filename := ns.getPath(basePath, ext)
 
 		in = append(in, preparedIO{
 			name:      inputDef.Name,
@@ -112,7 +105,7 @@ func (ns *NodeService) prepareIO(inputs, outputs map[string]string, nodeDef mode
 		}
 
 		extension := ns.getOutputExtension(outputDef.Type)
-		path, filename := ns.GetPath(basePath, extension)
+		path, filename := ns.getPath(basePath, extension)
 
 		out = append(out, preparedIO{
 			url:       outputURL,
@@ -126,13 +119,13 @@ func (ns *NodeService) prepareIO(inputs, outputs map[string]string, nodeDef mode
 	return in, out, nil
 }
 
-func (ns NodeService) AddIOToEnvMap(env map[string]string, prepped []preparedIO) {
+func (ns *NodeService) addIOToEnvMap(env map[string]string, prepped []preparedIO) {
 	for _, prep := range prepped {
 		env[prep.name] = prep.path
 	}
 }
 
-func (ns NodeService) getOutputExtension(types []models.MimeType) string {
+func (ns *NodeService) getOutputExtension(types []models.MimeType) string {
 	if len(types) != 1 {
 		return ""
 	}
@@ -141,23 +134,9 @@ func (ns NodeService) getOutputExtension(types []models.MimeType) string {
 	return mimetypes.GetExtensionFromMime(t)
 }
 
-func (ns NodeService) GetOutputPaths(outputs map[string]string, base_path string) (map[string]string, error) {
-
-	out := make(map[string]string, len(outputs))
-
-	for name := range outputs {
-		id := uuid.Must(uuid.NewV7()).String()
-		path := path.Join(base_path, id)
-
-		out[name] = path
-	}
-
-	return out, nil
-}
-
 // Validates a given uploaded file against the qualified allowed mime types.
 // Returns the appoprriate file extension
-func (ns NodeService) ValidateInput(url string, mimeSet mimetypes.MimeSet) (ext string, err error) {
+func (ns *NodeService) validateInput(url string, mimeSet mimetypes.MimeSet) (ext string, err error) {
 
 	resp, err := http.Get(url)
 
@@ -179,12 +158,12 @@ func (ns NodeService) ValidateInput(url string, mimeSet mimetypes.MimeSet) (ext 
 	return ext, nil
 }
 
-func (ns NodeService) GetPath(base_path string, extension string) (path string, filename string) {
+func (ns *NodeService) getPath(base_path string, extension string) (path string, filename string) {
 	filename = uuid.Must(uuid.NewV7()).String() + extension
 	return filepath.Join(base_path, filename), filename
 }
 
-func (ns NodeService) GetFlags(nodeDef models.NodeDef, node models.Node) (map[string]string, error) {
+func (ns *NodeService) getFlags(nodeDef models.NodeDef, node models.Node) (map[string]string, error) {
 	flagMap := make(map[string]string)
 
 	for _, flagDef := range nodeDef.Flags {
@@ -203,15 +182,4 @@ func (ns NodeService) GetFlags(nodeDef models.NodeDef, node models.Node) (map[st
 	}
 
 	return flagMap, nil
-}
-
-func (ns NodeService) CanWorkerRunContainer(nodeDef models.NodeDef) bool {
-
-	imageList, err := ns.CS.ListImages()
-	if err != nil {
-		return false
-	}
-
-	return slices.Contains(imageList, nodeDef.Image)
-
 }

@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
+	"github.com/pupload/pupload/internal/logging"
 	"github.com/pupload/pupload/internal/resources"
 
 	"github.com/cusianovic/asynq"
@@ -29,6 +31,8 @@ type RedisSync struct {
 	workerResourceManger *resources.ResourceManager
 
 	mu sync.Mutex
+
+	log *slog.Logger
 }
 
 func NewControllerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
@@ -61,6 +65,8 @@ func NewControllerRedisSyncLayer(cfg SyncPlaneSettings) *RedisSync {
 		redsync:     rs,
 
 		mux: asynq.NewServeMux(),
+
+		log: logging.ForService("controller-synclayer"),
 	}
 
 	mgr, err := asynq.NewPeriodicTaskManager(asynq.PeriodicTaskManagerOpts{
@@ -118,6 +124,8 @@ func NewWorkerRedisSyncLayer(cfg SyncPlaneSettings, rCfg resources.ResourceSetti
 
 		mux:                  asynq.NewServeMux(),
 		workerResourceManger: rm,
+
+		log: logging.ForService("worker-synclayer"),
 	}
 
 	return redisSync
@@ -135,54 +143,12 @@ func (r *RedisSync) RegisterExecuteNodeHandler(handler ExecuteNodeHandler) error
 			return fmt.Errorf("ExecuteNodeHandler: Error unmarshaling payload: %w", err)
 		}
 
-		if p.NodeDef.Tier == "" {
-			p.NodeDef.Tier = "c-mirco"
-		}
-
-		if err := r.tryReserve(p.NodeDef.Tier); err != nil {
-			return err
-		}
-		defer r.tryRelease(p.NodeDef.Tier)
-
-		res, err := r.workerResourceManger.GenerateContainerResource(p.NodeDef.Tier)
-		if err != nil {
-			return err
-		}
-
-		if err := handler(ctx, p, res); err != nil {
+		if err := handler(ctx, p); err != nil {
 			return err
 		}
 
 		return nil
 	})
-
-	return nil
-}
-
-func (r *RedisSync) tryReserve(s string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if err := r.workerResourceManger.Reserve(s); err != nil {
-		return fmt.Errorf("ExecuteNodeHandler: Could not reserve resource %s: %w", s, err)
-	}
-
-	queueMap := r.workerResourceManger.GetValidTierMap()
-
-	r.asynqServer.SetQueues(queueMap, false)
-
-	return nil
-}
-
-func (r *RedisSync) tryRelease(s string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if err := r.workerResourceManger.Release(s); err != nil {
-		return fmt.Errorf("ExecuteNodeHandler: Could not release resource %s: %w", s, err)
-	}
-
-	queueMap := r.workerResourceManger.GetValidTierMap()
-
-	r.asynqServer.SetQueues(queueMap, false)
 
 	return nil
 }
@@ -193,10 +159,9 @@ func (r *RedisSync) EnqueueExecuteNode(payload NodeExecutePayload) error {
 		return err
 	}
 
-	queue := "worker"
-	if payload.NodeDef.Tier == "" {
-		queue = payload.NodeDef.Tier
-	}
+	queue := payload.NodeDef.Tier
+
+	r.log.Debug("enqueued node def", "tier", payload.NodeDef.Tier)
 
 	task := asynq.NewTask(TypeNodeExecute, p, asynq.Queue(queue))
 	if _, err := r.asynqClient.Enqueue(task); err != nil {
@@ -266,6 +231,14 @@ func (r *RedisSync) EnqueueNodeError(payload NodeErrorHandler) error {
 	}
 
 	return nil
+}
+
+func (r *RedisSync) UpdateSubscribedQueues(queues map[string]int) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.asynqServer.SetQueues(queues, false)
+	return nil
+
 }
 
 const schedulerRunKey = "pup:sched:active_runs"

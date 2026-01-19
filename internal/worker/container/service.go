@@ -11,6 +11,7 @@ type ContainerService struct {
 	DockerClient *client.Client
 	RT           *ContainerRuntime
 	IO           *ContainerIO
+	IM           *ImageManager
 }
 
 func CreateContainerService() ContainerService {
@@ -27,6 +28,10 @@ func CreateContainerService() ContainerService {
 		},
 
 		IO: &ContainerIO{
+			client: client,
+		},
+
+		IM: &ImageManager{
 			client: client,
 		},
 	}

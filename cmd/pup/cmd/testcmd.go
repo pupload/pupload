@@ -28,19 +28,28 @@ to quickly create a Cobra application.`,
 
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		flow_name := args[0]
 
 		root, err := project.GetProjectRoot()
 		if err != nil {
 			return err
 		}
+		flow_name := args[0]
 
-		go func() {
-			log.SetOutput(io.Discard)
-			run.RunDevSilent(root)
-		}()
+		remote, err := cmd.Flags().GetString("remote")
+		if err != nil {
+			return err
+		}
 
-		run, err := project.TestFlow(root, "http://localhost:1234/", flow_name)
+		if remote != "" {
+			go func() {
+				log.SetOutput(io.Discard)
+				run.RunDevSilent(root)
+			}()
+
+			remote = "http://localhost:1234/"
+		}
+
+		run, err := project.TestFlow(root, remote, flow_name)
 		if err != nil {
 			return err
 		}
@@ -61,7 +70,7 @@ func init() {
 	// and all subcommands, e.g.:
 	// testCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	testCmd.PersistentFlags()
+	testCmd.Flags().String("remote", "", "sets remote controller to listen on")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

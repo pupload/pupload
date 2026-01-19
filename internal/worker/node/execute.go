@@ -42,6 +42,21 @@ func (n *NodeService) NodeExecute(ctx context.Context, payload syncplane.NodeExe
 		return err
 	}
 
+	l.Info("validating container image")
+	ok, err := n.CS.IM.Validate(ctx, payload.NodeDef.Image)
+	if err != nil {
+		l.Error("error validating image", "err", err)
+		return err
+	}
+	if !ok {
+		l.Warn("image not found, attempting pull")
+		err := n.CS.IM.Pull(ctx, payload.NodeDef.Image)
+		if err != nil {
+			l.Error("error pulling image", "err", err)
+			return err
+		}
+	}
+
 	containerID, err := n.CS.RT.CreateContainer(ctx, cont.ContainerConfig{
 		Image: payload.NodeDef.Image,
 		Name:  "test2",
@@ -135,13 +150,13 @@ func (n *NodeService) uploadAllOutputsFromContainer(ctx context.Context, contain
 func (n *NodeService) generateCommand(node models.Node, nodeDef models.NodeDef, in, out []preparedIO) ([]string, error) {
 	envMap := make(map[string]string)
 
-	if err := n.AddEnvFlagMap(envMap, nodeDef, node); err != nil {
+	if err := n.addEnvFlagMap(envMap, nodeDef, node); err != nil {
 		return nil, err
 	}
 
 	// prep inputs
-	n.AddIOToEnvMap(envMap, in)
-	n.AddIOToEnvMap(envMap, out)
+	n.addIOToEnvMap(envMap, in)
+	n.addIOToEnvMap(envMap, out)
 
 	expand := os.Expand(nodeDef.Command.Exec, func(s string) string {
 		return envMap[s]
