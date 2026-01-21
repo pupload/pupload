@@ -16,9 +16,11 @@ require (
 
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/jaypipes/pcidb v1.1.1 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect

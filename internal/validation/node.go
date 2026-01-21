@@ -24,7 +24,7 @@ func nodeNoDefFound(r *ValidationResult, node models.Node, defs []models.NodeDef
 	if def == nil {
 		r.AddError(ValidationEntry{
 			ValidationError,
-			ErrFlowCycle,
+			ErrNodeDefNotFound,
 			"NodeDefNotFound",
 			fmt.Sprintf("Definition %s not found (node %s)", node.Uses, node.ID),
 		})

@@ -82,6 +82,14 @@ func edgeTypeMismatch(r *ValidationResult, flow models.Flow, nodeDefs []models.N
 	inputSet := make(map[EdgeNodeKey]mimetypes.MimeSet)
 	outputSet := make(map[string]mimetypes.MimeSet)
 
+	// Track edges that come from datawells (which are type-agnostic)
+	datawellEdges := make(map[string]bool)
+	for _, well := range flow.DataWells {
+		if well.Source != nil {
+			datawellEdges[well.Edge] = true
+		}
+	}
+
 	for _, node := range flow.Nodes {
 
 		var def *models.NodeDef
@@ -93,7 +101,7 @@ func edgeTypeMismatch(r *ValidationResult, flow models.Flow, nodeDefs []models.N
 		}
 
 		if def == nil {
-			return
+			continue
 		}
 
 		for _, inEdge := range node.Inputs {
@@ -131,6 +139,11 @@ func edgeTypeMismatch(r *ValidationResult, flow models.Flow, nodeDefs []models.N
 
 	for _, node := range flow.Nodes {
 		for _, in := range node.Inputs {
+			// Skip type check for edges from datawells (they can be any type)
+			if datawellEdges[in.Edge] {
+				continue
+			}
+
 			inputTypes := inputSet[EdgeNodeKey{in.Edge, node.ID}]
 			outputTypes := outputSet[in.Edge]
 
